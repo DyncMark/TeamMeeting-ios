@@ -105,7 +105,6 @@ typedef enum ViewState {
     self.micStateImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"micState"]];
     self.micStateImage.frame = CGRectMake(self.view.bounds.size.width - 40, 66, 40, 40);
     self.micStateImage.hidden = YES;
-    [self.view addSubview:self.micStateImage];
     
     self.videoGroudImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"videoBackgroud"]];
     self.videoGroudImage.userInteractionEnabled = NO;
@@ -141,7 +140,7 @@ typedef enum ViewState {
     self.noUserTip.text = @"Waiting for others to join the room";
     [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, CGRectGetMidY(self.menuView.frame) - 80)];
     [self.view addSubview:self.noUserTip];
-
+    [self.view addSubview:self.micStateImage];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -445,6 +444,7 @@ typedef enum ViewState {
         
         [self.popver dismiss];
         [self.shareViewGround performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:0.2];
+        self.popver = nil;
     }
 }
 
@@ -563,9 +563,11 @@ typedef enum ViewState {
         [copyLink setCenter:CGPointMake(copyLink.center.x, shareView.bounds.size.height - 30)];
         
     }
-    if (self.popver)
+    if (self.popver) {
+        
         [self.popver dismiss];
-    
+        self.popver = nil;
+    }
     self.popver = [DXPopover popover];
     self.popver.sideEdge = 15;
     self.popver.arrowSize = CGSizeMake(15, 15);
@@ -631,6 +633,7 @@ typedef enum ViewState {
     
     [self.rootView.view removeFromSuperview];
     self.rootView = [[RootViewController alloc] init];
+    self.rootView.parentViewCon = self;
     self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.rootView.view.frame = self.view.bounds;
     
@@ -720,6 +723,7 @@ typedef enum ViewState {
     if (self.popver) {
         
         [self.popver dismiss];
+        self.popver = nil;
     }
     self.micStateImage.alpha = 0;
     self.noUserTip.alpha = 0;
@@ -741,6 +745,15 @@ typedef enum ViewState {
        [self performSelector:@selector(shareView) withObject:nil afterDelay:0.3];
     }
     [self adjustUI];
+}
+
+- (BOOL)isVertical {
+    
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    return isVertical;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {

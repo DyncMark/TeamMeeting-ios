@@ -63,7 +63,7 @@ static NSString *kRoomCellID = @"RoomCell";
     
     [self setBackGroundImageView];
     
-    //[self initUser];
+    [self initUser];
     
     self.roomList = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.height-75) style:UITableViewStylePlain];
     self.roomList.backgroundColor = [UIColor clearColor];
