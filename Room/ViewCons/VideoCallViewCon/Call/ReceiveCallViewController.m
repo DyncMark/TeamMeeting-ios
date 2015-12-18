@@ -82,6 +82,7 @@
     [self.videosScrollView setUserInteractionEnabled:YES];
     [self.videosScrollView setContentSize:CGSizeMake(self.view.bounds.size.width*2, 120)];
     [self.videosScrollView setContentOffset:CGPointMake(self.videosScrollView.contentSize.width/4, 0) animated:YES];
+    [self.videosScrollView setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin  | UIViewAutoresizingFlexibleWidth ];
     self.videosScrollView.backgroundColor = [UIColor clearColor];
     _peerSelectedId = nil;
     _isHidden = NO;
@@ -104,8 +105,28 @@
     [self.view addSubview:self.videosScrollView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullSreenNoti:) name:@"FULLSCREEN" object:nil];
 
+}
+
+- (void)fullSreenNoti:(NSNotification *)noti {
+    
+    NSNumber *object = [noti object];
+    if ([object boolValue]) {
+        
+        [UIView animateWithDuration:0.2 animations:^{
+            
+            self.videosScrollView.frame = CGRectMake(self.videosScrollView.frame.origin.x, self.view.bounds.size.height - 150, self.view.bounds.size.width, 120);
+        }];
+        
+    } else {
+        
+        [UIView animateWithDuration:0.2 animations:^{
+            
+            self.videosScrollView.frame = CGRectMake(self.videosScrollView.frame.origin.x, self.view.bounds.size.height - 210, self.view.bounds.size.width, 120);
+        }];
+    }
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -201,7 +222,8 @@
             view.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);;
         }
         
-        
+        [view removeFromSuperview];
+        [self.view addSubview:view];
         [self.view sendSubviewToBack:view];
         
         CGFloat scalelocal = _localVideoSize.width/_localVideoSize.height;
@@ -268,6 +290,7 @@
             UIView *subView = [videoArrays objectAtIndex:i];
             CGRect rect = CGRectMake(self.videosScrollView.contentSize.width/2 - (i + 1)*subView.bounds.size.width, self.videosScrollView.contentSize.height/2, subView.bounds.size.width, subView.bounds.size.height);
             subView.frame = rect;
+            [subView setCenter:CGPointMake(subView.center.x, self.videosScrollView.contentSize.height/2)];
             [self.videosScrollView addSubview:subView];
         }
         for (int i = 0; i < [rightVideos count]; i ++) {
@@ -275,6 +298,7 @@
             UIView *subView = [videoArrays objectAtIndex:i];
             CGRect rect = CGRectMake(self.videosScrollView.contentSize.width/2 + i*subView.bounds.size.width, self.videosScrollView.contentSize.height/2, subView.bounds.size.width, subView.bounds.size.height);
             subView.frame = rect;
+            [subView setCenter:CGPointMake(subView.center.x, self.videosScrollView.contentSize.height/2)];
             [self.videosScrollView addSubview:subView];
         }
         
@@ -295,6 +319,9 @@
             } else {
                 _localVideoView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
             }
+            [_localVideoView removeFromSuperview];
+            [self.view addSubview:_localVideoView];
+            [self.view sendSubviewToBack:_localVideoView];
             return;
         }
         if (_localVideoSize.width && _localVideoSize.height > 0) {
@@ -360,6 +387,7 @@
             UIView *subView = [videoArrays objectAtIndex:i];
             CGRect rect = CGRectMake(self.videosScrollView.contentSize.width/2 - (i + 1)*subView.bounds.size.width, self.videosScrollView.contentSize.height/2, subView.bounds.size.width, subView.bounds.size.height);
             subView.frame = rect;
+            [subView setCenter:CGPointMake(subView.center.x, self.videosScrollView.contentSize.height/2)];
             [self.videosScrollView addSubview:subView];
         }
         for (int i = 0; i < [rightVideos count]; i ++) {
@@ -367,6 +395,7 @@
             UIView *subView = [videoArrays objectAtIndex:i];
             CGRect rect = CGRectMake(self.videosScrollView.contentSize.width/2 + i*subView.bounds.size.width, self.videosScrollView.contentSize.height/2, subView.bounds.size.width, subView.bounds.size.height);
             subView.frame = rect;
+            [subView setCenter:CGPointMake(subView.center.x, self.videosScrollView.contentSize.height/2)];
             [self.videosScrollView addSubview:subView];
         }
     }

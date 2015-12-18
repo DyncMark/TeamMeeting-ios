@@ -21,6 +21,8 @@
 #import "ASNetwork.h"
 #import "RoomAlertView.h"
 #import "UINavigationBar+Category.h"
+#import "NtreatedDataManage.h"
+
 
 static NSString *kRoomCellID = @"RoomCell";
 
@@ -245,7 +247,6 @@ static NSString *kRoomCellID = @"RoomCell";
 #pragma mark - button events
 - (void)getRoomButtonEvent:(UIButton*)button
 {
-    
     if (self.roomList.isEditing) {
         self.roomList.editing = NO;
     }
@@ -308,6 +309,12 @@ static NSString *kRoomCellID = @"RoomCell";
     }
     self.cancleButton.hidden = YES;
     
+    NtreatedDataManage *manage = [[NtreatedDataManage alloc] init];
+    NtreatedData *data = [[NtreatedData alloc] init];
+    data.actionType = CreateRoom;
+    data.item = roomItem;
+    [manage addData:data];
+    
     __weak MainViewController *weakSelf = self;
     // 上传信息
     [ServerVisit applyRoomWithSign:[ServerVisit shead].authorization mettingId:roomItem.roomID mettingname:roomItem.roomName mettingCanPush:roomItem.canNotification mettingtype:@"0" mettingdesc:@"" completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
@@ -319,7 +326,9 @@ static NSString *kRoomCellID = @"RoomCell";
                 
             }
         }
+        [manage removeData:data];
     }];
+
 }
 
 // 更新名字
@@ -352,8 +361,15 @@ static NSString *kRoomCellID = @"RoomCell";
         [self.roomList reloadData];
     });
     
+    NtreatedDataManage *manage = [[NtreatedDataManage alloc] init];
+    NtreatedData *data = [[NtreatedData alloc] init];
+    data.actionType = ModifyRoomName;
+    data.item = roomItem;
+    [manage addData:data];
+    
     [ServerVisit updatateRoomNameWithSign:[ServerVisit shead].authorization mettingID:roomItem.roomID mettingName:roomName completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
         NSLog(@"updata name");
+        [manage removeData:data];
     }];
 }
 // 删除room

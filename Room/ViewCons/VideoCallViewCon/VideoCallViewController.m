@@ -141,6 +141,8 @@ typedef enum ViewState {
     [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, CGRectGetMidY(self.menuView.frame) - 80)];
     [self.view addSubview:self.noUserTip];
     [self.view addSubview:self.micStateImage];
+    
+    //[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -241,6 +243,7 @@ typedef enum ViewState {
             
         }];
         [self hidenMenuView:NO];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"FULLSCREEN" object:[NSNumber numberWithBool:NO]];
         
     } else {
         
@@ -253,6 +256,7 @@ typedef enum ViewState {
             self.barView.hidden = YES;
         }];
         [self hidenMenuView:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"FULLSCREEN" object:[NSNumber numberWithBool:YES]];
     }
 }
 
