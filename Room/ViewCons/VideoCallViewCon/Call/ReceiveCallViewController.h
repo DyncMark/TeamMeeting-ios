@@ -18,4 +18,5 @@
 - (void)hangeUp;      // hunge up
 
 - (void)sendMessageWithCmmand:(NSString *)cmd userID:(NSString *)userid;
+
 @end

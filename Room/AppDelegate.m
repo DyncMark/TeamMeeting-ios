@@ -10,7 +10,9 @@
 #import "MainViewController.h"
 #import "ServerVisit.h"
 #import "ASNetwork.h"
-
+#import "NtreatedDataManage.h"
+#import "WXApi.h"
+#import "WXApiManager.h"
 @interface AppDelegate () <UISplitViewControllerDelegate>
 
 @end
@@ -18,7 +20,7 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
+
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     NSDictionary *navbarTitleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
     [[UINavigationBar appearance] setTitleTextAttributes:navbarTitleTextAttributes];
@@ -54,6 +56,7 @@
 #pragma clang diagnostic pop
     }
     
+    [WXApi registerApp:@"wx4d9fbaec0a4c368f" withDescription:@"demo 2.0"];
     UINavigationController *nai = [[UINavigationController alloc] initWithRootViewController:[MainViewController new]];
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     [self.window setRootViewController:nai];
@@ -107,7 +110,7 @@
         [self getUrlParamer:encodedString withFirstIn:NO];
         
     }
-    return YES;
+    return [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];
 }
 
 - (void)getUrlParamer:(NSString*)URL withFirstIn:(BOOL)isFirst
@@ -140,6 +143,11 @@
 //        [[NSNotificationCenter defaultCenter] postNotificationName:DreceivedDeviceCallNotification object:nil userInfo:dict];
     }
 }
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return  [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

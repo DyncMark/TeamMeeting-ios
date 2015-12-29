@@ -17,5 +17,5 @@
 @interface VideoCallViewController : UIViewController
 
 @property (nonatomic, strong) RoomItem *roomItem;
-
+- (BOOL)isVertical;
 @end

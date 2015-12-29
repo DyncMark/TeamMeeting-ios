@@ -50,6 +50,41 @@
 }
 
 
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    
+    [aCoder encodeObject:self.roomName forKey:@"roomName"];
+    [aCoder encodeObject:self.roomID forKey:@"roomID"];
+    [aCoder encodeObject:self.userID forKey:@"userID"];
+    [aCoder encodeObject:self.canNotification forKey:@"canNotification"];
+    [aCoder encodeInt:self.jointime forKey:@"jointime"];
+    [aCoder encodeObject:self.mettingNum forKey:@"mettingNum"];
+    [aCoder encodeInteger:self.mettingType forKey:@"mettingType"];
+    [aCoder encodeObject:self.mettingDesc forKey:@"mettingDesc"];
+    [aCoder encodeInteger:self.mettingState forKey:@"mettingState"];
+    [aCoder encodeBool:self.isOwn forKey:@"isOwn"];
+    
+}
+
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+    
+    if (self = [super init]) {
+        
+       _roomName = [aDecoder decodeObjectForKey:@"roomName"];
+        _roomID = [aDecoder decodeObjectForKey:@"roomID"];
+        _userID = [aDecoder decodeObjectForKey:@"userID"];
+        _canNotification = [aDecoder decodeObjectForKey:@"canNotification"];
+        _jointime = [aDecoder decodeIntForKey:@"jointime"];
+        _mettingNum = [aDecoder decodeObjectForKey:@"mettingNum"];
+        _mettingType = [aDecoder decodeIntegerForKey:@"mettingType"];
+        _mettingDesc = [aDecoder decodeObjectForKey:@"mettingDesc"];
+        _mettingState = [aDecoder decodeIntegerForKey:@"mettingState"];
+        _isOwn = [aDecoder decodeBoolForKey:@"isOwn"];
+        
+    }
+    return self;
+    
+}
+
 @end
 
 @implementation RoomVO
