@@ -449,7 +449,7 @@ static NSString *kRoomCellID = @"RoomCell";
     
     NSIndexPath *indexP = [NSIndexPath indexPathForRow:index inSection:0];
     
-    [indexPaths addObject: indexP];     
+    [indexPaths addObject: indexP];
     [self.roomList beginUpdates];
     
     [self.roomList deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];

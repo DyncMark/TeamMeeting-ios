@@ -143,6 +143,7 @@
 		FC1597E41C293550009F8FB4 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1597E31C293550009F8FB4 /* libsqlite3.0.tbd */; };
 		FC3C69EB1C23994500053A75 /* NtreatedData.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C69EA1C23994500053A75 /* NtreatedData.m */; };
 		FC3C69EE1C239A9500053A75 /* NtreatedDataManage.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C69ED1C239A9500053A75 /* NtreatedDataManage.m */; };
+		FC3F2AB51C32280600CF36A8 /* libRTMsgClientIos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC3F2AB41C32280600CF36A8 /* libRTMsgClientIos.a */; };
 		FC592AF51C2928D20055EDCC /* libWeChatSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC592AF11C2928D20055EDCC /* libWeChatSDK.a */; };
 		FCB6026D1C2BC6FA00469FA2 /* WXApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB602601C2BC6FA00469FA2 /* WXApiManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		FCB6026E1C2BC6FA00469FA2 /* WXApiRequestHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB602621C2BC6FA00469FA2 /* WXApiRequestHandler.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -371,6 +372,7 @@
 		FC3C69EA1C23994500053A75 /* NtreatedData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NtreatedData.m; sourceTree = "<group>"; };
 		FC3C69EC1C239A9500053A75 /* NtreatedDataManage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NtreatedDataManage.h; sourceTree = "<group>"; };
 		FC3C69ED1C239A9500053A75 /* NtreatedDataManage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NtreatedDataManage.m; sourceTree = "<group>"; };
+		FC3F2AB41C32280600CF36A8 /* libRTMsgClientIos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRTMsgClientIos.a; sourceTree = "<group>"; };
 		FC592AF11C2928D20055EDCC /* libWeChatSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libWeChatSDK.a; sourceTree = "<group>"; };
 		FC592AF21C2928D20055EDCC /* WechatAuthSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WechatAuthSDK.h; sourceTree = "<group>"; };
 		FC592AF31C2928D20055EDCC /* WXApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApi.h; sourceTree = "<group>"; };
@@ -420,6 +422,7 @@
 				780250891C0E9E4E00435DC7 /* GLKit.framework in Frameworks */,
 				780250871C0E9E2C00435DC7 /* libz.tbd in Frameworks */,
 				FC592AF51C2928D20055EDCC /* libWeChatSDK.a in Frameworks */,
+				FC3F2AB51C32280600CF36A8 /* libRTMsgClientIos.a in Frameworks */,
 				780250851C0E9E2500435DC7 /* libstdc++.tbd in Frameworks */,
 				780250831C0E9E1E00435DC7 /* libstdc++.6.0.9.tbd in Frameworks */,
 				7802507F1C0E9E0D00435DC7 /* libicucore.tbd in Frameworks */,
@@ -960,6 +963,7 @@
 		FCB6025B1C2B822E00469FA2 /* RtcMesg */ = {
 			isa = PBXGroup;
 			children = (
+				FC3F2AB41C32280600CF36A8 /* libRTMsgClientIos.a */,
 			);
 			path = RtcMesg;
 			sourceTree = "<group>";
