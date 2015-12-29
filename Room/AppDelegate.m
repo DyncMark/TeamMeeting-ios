@@ -56,6 +56,7 @@
     
     UINavigationController *nai = [[UINavigationController alloc] initWithRootViewController:[MainViewController new]];
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    nai.navigationBarHidden = YES;
     [self.window setRootViewController:nai];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];

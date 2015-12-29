@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		780115111C327D3C0015CA63 /* NavView.m in Sources */ = {isa = PBXBuildFile; fileRef = 780115101C327D3C0015CA63 /* NavView.m */; };
 		78024F961C0E96DF00435DC7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 78024F951C0E96DF00435DC7 /* main.m */; };
 		78024F991C0E96DF00435DC7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 78024F981C0E96DF00435DC7 /* AppDelegate.m */; };
 		78024F9F1C0E96DF00435DC7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78024F9D1C0E96DF00435DC7 /* Main.storyboard */; };
@@ -172,6 +173,8 @@
 /* Begin PBXFileReference section */
 		0148C48B67C96355DB42472F /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		780114AD1C3233FD0015CA63 /* Room-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Room-Prefix.pch"; sourceTree = "<group>"; };
+		7801150F1C327D3C0015CA63 /* NavView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavView.h; sourceTree = "<group>"; };
+		780115101C327D3C0015CA63 /* NavView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavView.m; sourceTree = "<group>"; };
 		78024F911C0E96DF00435DC7 /* Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Room.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78024F951C0E96DF00435DC7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		78024F971C0E96DF00435DC7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -416,6 +419,15 @@
 				7F145D8E4025C731234D6485 /* Pods.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		7801150E1C327D3C0015CA63 /* NavView */ = {
+			isa = PBXGroup;
+			children = (
+				7801150F1C327D3C0015CA63 /* NavView.h */,
+				780115101C327D3C0015CA63 /* NavView.m */,
+			);
+			path = NavView;
 			sourceTree = "<group>";
 		};
 		78024F881C0E96DF00435DC7 = {
@@ -683,6 +695,7 @@
 		780250681C0E99C900435DC7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				7801150E1C327D3C0015CA63 /* NavView */,
 				7806326C1C18328B00A8D186 /* FackNavView */,
 				780748751C17027F0010B010 /* AlertView */,
 				78FC36361C100B4D001BEDD7 /* LockerView */,
@@ -1221,6 +1234,7 @@
 				7802505C1C0E998F00435DC7 /* UUAVAudioPlayer.m in Sources */,
 				781D8CE41C1956E000835FEC /* TimeManager.m in Sources */,
 				7808DF121C1126550039173B /* ASNetwork.m in Sources */,
+				780115111C327D3C0015CA63 /* NavView.m in Sources */,
 				78024F961C0E96DF00435DC7 /* main.m in Sources */,
 				78FC36351C100AF8001BEDD7 /* Mp3Recorder.m in Sources */,
 				780250741C0E99C900435DC7 /* RoomViewCell.m in Sources */,

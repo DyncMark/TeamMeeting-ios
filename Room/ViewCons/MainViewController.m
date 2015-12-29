@@ -21,6 +21,7 @@
 #import "ASNetwork.h"
 #import "RoomAlertView.h"
 #import "UINavigationBar+Category.h"
+#import "NavView.h"
 
 static NSString *kRoomCellID = @"RoomCell";
 
@@ -35,6 +36,8 @@ static NSString *kRoomCellID = @"RoomCell";
 @property (nonatomic, strong) NSMutableArray *tempDataArray; // 临时数据
 @property (nonatomic, strong) UIButton *cancleButton;    // 取消创建房间
 @property (nonatomic, strong) RoomAlertView *netAlertView;
+@property (nonatomic, strong) NavView *navView;
+@property (nonatomic, assign) UIInterfaceOrientation oldInterface;
 
 @end
 
@@ -51,8 +54,8 @@ static NSString *kRoomCellID = @"RoomCell";
     
     [super viewDidLoad];
     self.title = @"房间";
+    self.oldInterface = self.interfaceOrientation;
     self.view.backgroundColor = [UIColor clearColor];
-    [self.navigationController.navigationBar rm_setBackgroundColor:[UIColor blackColor]];
     
     [[ASNetwork sharedNetwork] addObserver:self forKeyPath:@"_netType" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
     
@@ -60,12 +63,14 @@ static NSString *kRoomCellID = @"RoomCell";
         dataArray = [[NSMutableArray alloc] initWithCapacity:5];
         tempDataArray = [[NSMutableArray alloc] initWithCapacity:5];
     }
-    
+    [self initUser];
     [self setBackGroundImageView];
     
-    //[self initUser];
+    self.navView = [NavView new];
+    self.navView.title = @"房间";
+    [self.view addSubview:self.navView];
     
-    self.roomList = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.height-75) style:UITableViewStylePlain];
+    self.roomList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.roomList.backgroundColor = [UIColor clearColor];
     self.roomList.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.roomList.delegate = self;
@@ -74,7 +79,6 @@ static NSString *kRoomCellID = @"RoomCell";
     [self.roomList registerClass:[RoomViewCell class] forCellReuseIdentifier:kRoomCellID];
     
     self.getRoomButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.getRoomButton.frame = CGRectMake(15, self.height - 60,self.view.bounds.size.width -30, 45);
     [self.getRoomButton setTitle:@"获取房间" forState:UIControlStateNormal];
      [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.getRoomButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
@@ -87,30 +91,69 @@ static NSString *kRoomCellID = @"RoomCell";
     self.push.delegate = self;
     [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:self.push];
     
-    self.getRoomView = [[GetRoomView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.height) withParView:self.view];
+    self.getRoomView = [[GetRoomView alloc] initWithFrame:CGRectMake(0, 64, self.view.bounds.size.width, CGRectGetHeight(self.view.frame)) withParView:self.view];
     self.getRoomView.delegate = self;
     
     self.cancleButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.cancleButton.frame = CGRectMake(0, 0, 40, 28);
+    self.cancleButton.frame = CGRectMake(15, 25, 35, 28);
     [self.cancleButton setTitle:@"取消" forState:UIControlStateNormal];
     self.cancleButton.titleLabel.font = [UIFont systemFontOfSize:16];
     self.cancleButton.titleLabel.textAlignment = NSTextAlignmentLeft;
     [self.cancleButton addTarget:self action:@selector(cancleButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *cancleItem =[[UIBarButtonItem alloc] initWithCustomView:self.cancleButton];
-    self.navigationItem.leftBarButtonItem = cancleItem;
+//    UIBarButtonItem *cancleItem =[[UIBarButtonItem alloc] initWithCustomView:self.cancleButton];
+//    self.navigationItem.leftBarButtonItem = cancleItem;
+    [self.navView addSubview:self.cancleButton];
     self.cancleButton.hidden = YES;
+    
+    if (ISIPAD) {
+        
+    }else{
+        self.navView.frame = CGRectMake(0, 0, self.view.bounds.size.width, 64);
+        self.roomList.frame = CGRectMake(0, 64, self.view.bounds.size.width,CGRectGetHeight(self.view.frame)-CGRectGetMaxY(self.navView.frame) -75);
+        self.getRoomButton.frame = CGRectMake(15, CGRectGetMaxY(self.view.frame) - 60,self.view.bounds.size.width -30, 45);
+
+    }
+}
+// 旋转屏幕适配
+- (void)viewDidLayoutSubviews
+{
+    NSLog(@"viewDidLayoutSubviews:%ld",(long)self.interfaceOrientation);
+    if (self.oldInterface == self.interfaceOrientation || !ISIPAD) {
+        return;
+    }else{
+         UIView *initView = [[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:400];
+        if (self.interfaceOrientation == UIInterfaceOrientationPortrait) {
+            if (initView) {
+                initView.frame = [UIScreen mainScreen].bounds;
+            }
+            
+        }else if(self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft || self.interfaceOrientation == UIInterfaceOrientationLandscapeRight){
+            if (initView) {
+                initView.frame = [UIScreen mainScreen].bounds;
+            }
+        }
+    }
+    self.oldInterface = self.interfaceOrientation;
+    
 }
 #pragma mark -private methods
 
 - (void)initUser
 {
     UIView *initView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    initView.backgroundColor = [UIColor clearColor];
     initView.tag = 400;
-    UIImageView *initViewBg = [[UIImageView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [initView addSubview:initViewBg];
-    
     [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:initView];
     
+    UIImageView *initViewBg = [UIImageView new];
+    [initView addSubview:initViewBg];
+    
+    initViewBg.translatesAutoresizingMaskIntoConstraints = NO;
+    NSDictionary *views = NSDictionaryOfVariableBindings(initViewBg);
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[initViewBg]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[initViewBg]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    
+
     int height = CGRectGetHeight(self.view.bounds);
     NSString *imageName;
     switch (height) {
@@ -133,8 +176,15 @@ static NSString *kRoomCellID = @"RoomCell";
     }
     initViewBg.image = [UIImage imageNamed:imageName];
     UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicatorView.center = CGPointMake(initView.center.x, initView.center.y -180);
     [initView addSubview:activityIndicatorView];
+    
+    activityIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSDictionary* acViews = NSDictionaryOfVariableBindings(activityIndicatorView);
+    //设置高度
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-[activityIndicatorView]-|" options:NSLayoutFormatAlignAllCenterX metrics:nil views:acViews]];
+   // 上面的代码可以让prgrssView 水平居中。垂直代码如下
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[activityIndicatorView]-380-|" options:NSLayoutFormatAlignAllTop metrics:nil views:acViews]];
     [activityIndicatorView startAnimating];
 }
 
@@ -189,8 +239,13 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (void)setBackGroundImageView
 {
-    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    UIImageView *bgImageView = [[UIImageView alloc] init];
     [self.view addSubview:bgImageView];
+    bgImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSDictionary *views = NSDictionaryOfVariableBindings(bgImageView);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[bgImageView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[bgImageView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    
     int height = CGRectGetHeight(self.view.bounds);
     
     NSString *imageName;
@@ -271,6 +326,16 @@ static NSString *kRoomCellID = @"RoomCell";
         [self.roomList reloadData];
     });
     
+}
+// 点击取消无用，做此判断
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    NSSet *allTouches = [event allTouches];    //返回与当前接收者有关的所有的触摸对象
+    UITouch *touch = [allTouches anyObject];   //视图中的所有对象
+    CGPoint point = [touch locationInView:[touch view]];
+    if (CGRectContainsPoint(self.cancleButton.frame, point)) {
+        [self cancleButtonEvent:self.cancleButton];
+    }
 }
 
 - (void)cancleButtonEvent:(UIButton*)button

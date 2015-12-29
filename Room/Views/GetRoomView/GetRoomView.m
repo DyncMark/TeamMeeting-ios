@@ -40,6 +40,7 @@
         self.backgroundColor = [UIColor clearColor];
         
         dismissButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    
         dismissButton.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - GetRoomViewHeight);
         [dismissButton addTarget:self action:@selector(dismissGetRoomView) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:dismissButton];
