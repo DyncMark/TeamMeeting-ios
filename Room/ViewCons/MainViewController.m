@@ -658,17 +658,31 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    if (ISIPAD) {
+        return (interfaceOrientation == UIInterfaceOrientationPortrait||interfaceOrientation == UIInterfaceOrientationLandscapeLeft || interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+    }else{
+        return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    }
+    
 }
 
 - (BOOL)shouldAutorotate
 {
-    return NO;
+    if (ISIPAD) {
+        return YES;
+    }else{
+        return NO;
+    }
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait;
+    if (ISIPAD) {
+        return UIInterfaceOrientationMaskAll;
+    }else{
+        return UIInterfaceOrientationMaskPortrait;
+    }
+    
 }
 
 - (void)didReceiveMemoryWarning {

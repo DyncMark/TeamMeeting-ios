@@ -171,6 +171,7 @@
 
 /* Begin PBXFileReference section */
 		0148C48B67C96355DB42472F /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		780114AD1C3233FD0015CA63 /* Room-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Room-Prefix.pch"; sourceTree = "<group>"; };
 		78024F911C0E96DF00435DC7 /* Room.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Room.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78024F951C0E96DF00435DC7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		78024F971C0E96DF00435DC7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -420,6 +421,7 @@
 		78024F881C0E96DF00435DC7 = {
 			isa = PBXGroup;
 			children = (
+				780114AD1C3233FD0015CA63 /* Room-Prefix.pch */,
 				78024F931C0E96DF00435DC7 /* Room */,
 				78024FAD1C0E96DF00435DC7 /* RoomTests */,
 				78024FB81C0E96DF00435DC7 /* RoomUITests */,
@@ -1396,6 +1398,8 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = KeychainAccessGroups.plist;
 				ENABLE_BITCODE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/Room-Prefix.pch";
 				INFOPLIST_FILE = Room/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -1405,6 +1409,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.avcon.Room;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1416,6 +1421,8 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = KeychainAccessGroups.plist;
 				ENABLE_BITCODE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/Room-Prefix.pch";
 				INFOPLIST_FILE = Room/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -1425,6 +1432,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.avcon.Room;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
