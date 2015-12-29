@@ -70,6 +70,11 @@ typedef enum ViewState {
     [super viewWillAppear:animated];
     [self.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:[UIImage new]];
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0) {
+        
+        [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [self viewDidLoad];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -78,11 +83,13 @@ typedef enum ViewState {
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:nil];
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
+   
 }
 
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    
     self.view.backgroundColor = [UIColor whiteColor];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo) name:OPENVIDEO object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteVideoChange:) name:@"REMOTEVIDEOCHANGE" object:nil];
@@ -143,7 +150,6 @@ typedef enum ViewState {
     [self.view addSubview:self.noUserTip];
     [self.view addSubview:self.micStateImage];
     
-    //[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -174,7 +180,7 @@ typedef enum ViewState {
             
         } completion:^(BOOL finished) {
             
-        
+            
         }];
 
     } else {
@@ -295,7 +301,6 @@ typedef enum ViewState {
 
 - (void)initBar {
     
-    
     [self.barView removeFromSuperview];
     BOOL isVertical = YES;
     NSUInteger width = self.view.bounds.size.width;
@@ -360,7 +365,7 @@ typedef enum ViewState {
         shareButton.center = CGPointMake(shareButton.center.x, self.barView.bounds.size.height/2 + 10);
         
         UILabel *naiTitle = [[UILabel alloc] init];
-        //naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+        naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
         [naiTitle setTextColor:[UIColor whiteColor]];
         naiTitle.text = self.roomItem.roomName;
         [naiTitle setFont:[UIFont boldSystemFontOfSize:18]];
@@ -648,12 +653,23 @@ typedef enum ViewState {
 
 - (void)goToChat {
     
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    
     [self.rootView.view removeFromSuperview];
     self.rootView = [[RootViewController alloc] init];
     self.rootView.parentViewCon = self;
     self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.rootView.view.frame = self.view.bounds;
-    
+    if (ISIPAD) {
+        
+        self.rootView.view.frame = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y, isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100), self.view.bounds.size.height);
+        
+    } else {
+        
+        self.rootView.view.frame = self.view.bounds;
+    }
     [self hidenBarView];
     [self initChatBar];
     self.lineView.hidden = NO;
@@ -748,11 +764,19 @@ typedef enum ViewState {
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    if (ISIPAD) {
+        
+        self.rootView.view.frame = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y, isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100), self.view.bounds.size.height);
+    }
     if (self.state == CHATSTATE) {
         
         [self oritionChange];
         
-    } else if (self.state == VIDEOSTATE){
+    } else if (self.state == VIDEOSTATE) {
         
         [self closeChatView];
         [self initBar];

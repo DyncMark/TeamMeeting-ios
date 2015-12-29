@@ -167,9 +167,10 @@
     [UIView setAnimationDuration:animationDuration];
     [UIView setAnimationCurve:animationCurve];
     
+    UIViewController *parenetView = (UIViewController *)self.parentViewCon;
     BOOL isVertical = YES;
-    NSUInteger width = self.view.bounds.size.width;
-    NSUInteger height = self.view.bounds.size.height;
+    NSUInteger width = parenetView.view.bounds.size.width;
+    NSUInteger height = parenetView.view.bounds.size.height;
     isVertical = width > height ? NO : YES;
     
     //adjust ChatTableView's height
