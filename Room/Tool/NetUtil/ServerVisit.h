@@ -29,6 +29,7 @@
               mettingname:(NSString *)mname
            mettingCanPush:(NSString*)pushNum
               mettingtype:(NSString *)mtype
+               meetenable:(NSString *)metable
               mettingdesc:(NSString *)mdesc
                completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
 
@@ -67,6 +68,68 @@
                 withPageNum:(int)pageNum
                withPageSize:(int)pageSize
                  completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)updateRoomMemNumberWithSign:(NSString *)gn
+                          meetingID:(NSString *)mid
+                   meetingMemNumber:(NSString *)meetNumer
+                         completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)getMeetingMsgListWithSign:(NSString *)gn
+                        meetingID:(NSString *)mid
+                          pageNum:(NSString *)page
+                         pageSize:(NSString *)size
+                       completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)insertMeetingMsgWithSign:(NSString *)gn
+                       meetingID:(NSString *)mid
+                       messageid:(NSString *)mesgId
+                     messageType:(NSString *)mesgType
+                       sessionID:(NSString *)sessid
+                         strMsag:(NSString *)msg
+                          userId:(NSString *)userid
+                      completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)insertSessionMeetingInfoWithSign:(NSString *)gn
+                               meetingID:(NSString *)mid
+                               sessionID:(NSString *)sessid
+                           sessionStatus:(NSString *)status
+                             sessionType:(NSString *)type
+                           sessionNumber:(NSString *)sNumber
+                              completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)updateSessionMeetingStatusWithSign:(NSString *)gn
+                                 sessionID:(NSString *)sessid
+                             sessionStatus:(NSString *)status
+                                completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)updateSessionMeetingEndtimeWithSign:(NSString *)gn
+                                  sessionid:(NSString *)sessid
+                                 completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)updateSessionMeetingNumberWithSign:(NSString *)gn
+                                 sessionID:(NSString *)sessid
+                             sessionNumber:(NSString *)sNumber
+                                completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)updateUserMeetingJointimeWithSign:(NSString *)gn
+                                meetingID:(NSString *)mid
+                               completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)insertUserMeetingRoomWithSign:(NSString *)gn
+                            meetingID:(NSString *)mid
+                           completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)pushMeetingMsgWithSign:(NSString *)gn
+                     meetingID:(NSString *)mid
+                       pushMsg:(NSString *)msg
+                  notification:(NSString *)noti
+                    completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
+
++ (void)pushCommonMsgWithSign:(NSString *)gn
+                     targetID:(NSString *)target
+                      pushMsg:(NSString *)msg
+                 notification:(NSString *)noti
+                   completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;
 
 + (void)signoutRoomWithSign:(NSString *)gn
                  completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion;

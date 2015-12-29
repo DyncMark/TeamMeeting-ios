@@ -13,6 +13,7 @@ typedef enum  ActionType {
     
     ModifyRoomName,
     CreateRoom,
+    DeleteRoom,
     
 } ActionType;
 
@@ -22,5 +23,6 @@ typedef enum  ActionType {
 @property(nonatomic,retain)NSDate *lastModifyDate;
 @property(nonatomic,assign)ActionType actionType;
 @property(nonatomic,retain)RoomItem* item;
+@property(nonatomic,assign)BOOL isPrivate;
 @property(nonatomic,retain)NSString *udid;
 @end

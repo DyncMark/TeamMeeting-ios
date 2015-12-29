@@ -16,7 +16,7 @@
     [aCoder encodeInt:self.actionType forKey:@"actionType"];
     [aCoder encodeObject:self.item forKey:@"item"];
     [aCoder encodeObject:self.udid forKey:@"udid"];
-    
+    [aCoder encodeBool:self.isPrivate forKey:@"isPrivate"];
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
@@ -27,6 +27,7 @@
        _actionType = [aDecoder decodeIntForKey:@"actionType"];
        _item = [aDecoder decodeObjectForKey:@"item"];
        _udid = [aDecoder decodeObjectForKey:@"udid"];
+       _isPrivate = [aDecoder decodeBoolForKey:@"isPrivate"];
     }
     return self;
 }

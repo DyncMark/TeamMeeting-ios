@@ -12,6 +12,8 @@
 
 
 
++ (NtreatedDataManage *)sharedManager;
+- (void)dealwithDataWithTarget:(id)target;
 - (BOOL)addData:(NtreatedData *)data;
 - (BOOL)removeData:(NtreatedData *)data;
 - (NSMutableArray *)getData;

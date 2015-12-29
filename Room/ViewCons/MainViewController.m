@@ -37,6 +37,7 @@ static NSString *kRoomCellID = @"RoomCell";
 @property (nonatomic, strong) NSMutableArray *tempDataArray; // 临时数据
 @property (nonatomic, strong) UIButton *cancleButton;    // 取消创建房间
 @property (nonatomic, strong) RoomAlertView *netAlertView;
+@property (nonatomic, strong) UIView *barView;
 
 @end
 
@@ -46,6 +47,7 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[ASNetwork sharedNetwork] removeObserver:self forKeyPath:@"_netType" context:nil];
 }
 
@@ -101,8 +103,67 @@ static NSString *kRoomCellID = @"RoomCell";
     UIBarButtonItem *cancleItem =[[UIBarButtonItem alloc] initWithCustomView:self.cancleButton];
     self.navigationItem.leftBarButtonItem = cancleItem;
     self.cancleButton.hidden = YES;
+    [[NtreatedDataManage sharedManager] dealwithDataWithTarget:self];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)createRoomBar {
+    
+    if (self.barView)
+        [self.barView removeFromSuperview];
+        
+    self.barView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, 44)];
+    _barView.backgroundColor = [UIColor whiteColor];
+    UISwitch *privateRoomEnable = [[UISwitch alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 50, 0, 44, 44)];
+    privateRoomEnable.tag = 500;
+    privateRoomEnable.on = YES;
+    privateRoomEnable.center = CGPointMake(privateRoomEnable.center.x, self.barView.bounds.size.height/2);
+    [self.barView addSubview:privateRoomEnable];
+    
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+    [title setText:@"设置房间是否私密"];
+    [title setTextColor:[UIColor blackColor]];
+    [title setCenter:CGPointMake(title.center.x, self.barView.bounds.size.height/2)];
+    
+    [self.barView addSubview:title];
+    [self.view addSubview:_barView];
+    
 }
 #pragma mark -private methods
+
+-(void)keyboardChange:(NSNotification *)notification {
+    
+    NSDictionary *userInfo = [notification userInfo];
+    NSTimeInterval animationDuration;
+    UIViewAnimationCurve animationCurve;
+    CGRect keyboardEndFrame;
+    
+    [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] getValue:&animationCurve];
+    [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] getValue:&animationDuration];
+    [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardEndFrame];
+    
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDuration:animationDuration];
+    [UIView setAnimationCurve:animationCurve];
+    
+    if (notification.name == UIKeyboardWillShowNotification) {
+        
+        [self createRoomBar];
+        [UIView animateWithDuration:0.2 animations:^{
+            
+            [self.barView setFrame:CGRectMake(0, self.view.bounds.size.height - keyboardEndFrame.size.height - 44, self.barView.bounds.size.width, self.barView.bounds.size.height)];
+            
+        }];
+        
+    } else {
+        
+        [UIView animateWithDuration:0.2 animations:^{
+            
+            [self.barView setFrame:CGRectMake(0, self.view.bounds.size.height, self.barView.bounds.size.width, self.barView.bounds.size.height)];
+        }];
+    }
+}
 
 - (void)initUser
 {
@@ -297,6 +358,8 @@ static NSString *kRoomCellID = @"RoomCell";
 // 添加
 - (void)addRoomWithRoomName:(NSString*)roomName
 {
+    UISwitch *privateRoomEnable = (UISwitch *)[self.barView viewWithTag:500];
+    
     RoomItem *roomItem = [dataArray objectAtIndex:0];
     roomItem.roomName = roomName;
     
@@ -309,15 +372,15 @@ static NSString *kRoomCellID = @"RoomCell";
     }
     self.cancleButton.hidden = YES;
     
-    NtreatedDataManage *manage = [[NtreatedDataManage alloc] init];
     NtreatedData *data = [[NtreatedData alloc] init];
     data.actionType = CreateRoom;
+    data.isPrivate = privateRoomEnable.on;
     data.item = roomItem;
-    [manage addData:data];
+    [[NtreatedDataManage sharedManager] addData:data];
     
     __weak MainViewController *weakSelf = self;
     // 上传信息
-    [ServerVisit applyRoomWithSign:[ServerVisit shead].authorization mettingId:roomItem.roomID mettingname:roomItem.roomName mettingCanPush:roomItem.canNotification mettingtype:@"0" mettingdesc:@"" completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
+    [ServerVisit applyRoomWithSign:[ServerVisit shead].authorization mettingId:roomItem.roomID mettingname:roomItem.roomName mettingCanPush:roomItem.canNotification  mettingtype:@"0" meetenable:privateRoomEnable.on == YES ? @"private" : @"yes" mettingdesc:@""  completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
         NSLog(@"create room");
         NSDictionary *dict = (NSDictionary*)responseData;
         if (!error) {
@@ -326,9 +389,8 @@ static NSString *kRoomCellID = @"RoomCell";
                 
             }
         }
-        [manage removeData:data];
+        [[NtreatedDataManage sharedManager] removeData:data];
     }];
-
 }
 
 // 更新名字
@@ -361,20 +423,25 @@ static NSString *kRoomCellID = @"RoomCell";
         [self.roomList reloadData];
     });
     
-    NtreatedDataManage *manage = [[NtreatedDataManage alloc] init];
     NtreatedData *data = [[NtreatedData alloc] init];
     data.actionType = ModifyRoomName;
     data.item = roomItem;
-    [manage addData:data];
+    [[NtreatedDataManage sharedManager] addData:data];
     
     [ServerVisit updatateRoomNameWithSign:[ServerVisit shead].authorization mettingID:roomItem.roomID mettingName:roomName completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
         NSLog(@"updata name");
-        [manage removeData:data];
+        [[NtreatedDataManage sharedManager] removeData:data];
     }];
 }
 // 删除room
 - (void)deleteRoomWithItem:(RoomItem*)item withIndex:(NSInteger)index
 {
+    
+    NtreatedData *data = [[NtreatedData alloc] init];
+    data.actionType = ModifyRoomName;
+    data.item = item;
+    [[NtreatedDataManage sharedManager] addData:data];
+    
     [dataArray removeObject:item];
     // 先把数据添加上，在搞下面的
     
@@ -382,8 +449,7 @@ static NSString *kRoomCellID = @"RoomCell";
     
     NSIndexPath *indexP = [NSIndexPath indexPathForRow:index inSection:0];
     
-    [indexPaths addObject: indexP];
-    
+    [indexPaths addObject: indexP];     
     [self.roomList beginUpdates];
     
     [self.roomList deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
@@ -396,6 +462,7 @@ static NSString *kRoomCellID = @"RoomCell";
     
     [ServerVisit deleteRoomWithSign:[ServerVisit shead].authorization meetingID:item.roomID completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
         NSLog(@"delete room");
+        [[NtreatedDataManage sharedManager] removeData:data];
     }];
 }
 // 更新推送与否

@@ -16,6 +16,7 @@
 #import "ReceiveCallViewController.h"
 #import <GLKit/GLKit.h>
 #import "TalkView.h"
+#import "WXApiRequestHandler.h"
 @implementation UINavigationController (Orientations)
 
 
@@ -142,7 +143,7 @@ typedef enum ViewState {
     [self.view addSubview:self.noUserTip];
     [self.view addSubview:self.micStateImage];
     
-    //[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
+    //[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -361,7 +362,7 @@ typedef enum ViewState {
         UILabel *naiTitle = [[UILabel alloc] init];
         //naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
         [naiTitle setTextColor:[UIColor whiteColor]];
-        naiTitle.text = @"5566";
+        naiTitle.text = self.roomItem.roomName;
         [naiTitle setFont:[UIFont boldSystemFontOfSize:18]];
         [naiTitle setTextAlignment:NSTextAlignmentCenter];
         [naiTitle setLineBreakMode:NSLineBreakByWordWrapping];
@@ -490,8 +491,9 @@ typedef enum ViewState {
     messageImage.backgroundColor = [UIColor clearColor];
     [shareView addSubview:messageImage];
     
-    UIImageView *mailImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
-    [mailImage setImage:[UIImage imageNamed:@"mailInvite"]];
+    UIButton *mailImage = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    [mailImage setBackgroundImage:[UIImage imageNamed:@"mailInvite"] forState:UIControlStateNormal];
+    [mailImage addTarget:self action:@selector(weChatShare) forControlEvents:UIControlEventTouchUpInside];
     mailImage.backgroundColor = [UIColor clearColor];
     [shareView addSubview:mailImage];
     
@@ -528,7 +530,7 @@ typedef enum ViewState {
     
     UILabel *linkTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, shareView.bounds.size.width - (isVertical ? 60 : 120), 56)];
     [linkTitle setFont:[UIFont systemFontOfSize:12]];
-    linkTitle.text = @"room.com/#/...EE83927489327";
+    linkTitle.text = [NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID];
     [linkTitle setTextColor:[UIColor grayColor]];
     [linkTitle setBackgroundColor:[UIColor clearColor]];
     [linkTitle setTextAlignment:NSTextAlignmentCenter];
@@ -594,6 +596,17 @@ typedef enum ViewState {
         [self.popver showAtPoint:CGPointMake(self.view.bounds.size.width - 25, 65) popoverPostion:DXPopoverPositionDown withContentView:shareView inView:_shareViewGround];
         
     }
+}
+
+- (void)weChatShare {
+    
+    
+    [WXApiRequestHandler sendLinkURL:[NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID]
+                             TagName:nil
+                               Title:@"test"
+                         Description:@"test"
+                          ThumbImage:nil
+                             InScene:WXSceneSession];
 }
 
 - (void)closeChatView {
@@ -703,10 +716,10 @@ typedef enum ViewState {
     
     [_popver dismiss];
     MFMessageComposeViewController *controller = [[MFMessageComposeViewController alloc] init];
-    
+    controller.navigationBar.barTintColor = [UIColor whiteColor];
     if([MFMessageComposeViewController canSendText])
     {
-        controller.body = @"test";
+        controller.body = [NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID];
         
         controller.recipients = nil;
         
