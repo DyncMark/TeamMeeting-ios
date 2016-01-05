@@ -80,7 +80,7 @@ static NSString *kRoomCellID = @"RoomCell";
     self.getRoomButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.getRoomButton.frame = CGRectMake(15, self.height - 60,self.view.bounds.size.width -30, 45);
     [self.getRoomButton setTitle:@"获取房间" forState:UIControlStateNormal];
-     [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.getRoomButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
     [self.view addSubview:self.getRoomButton];
     [self.getRoomButton addTarget:self action:@selector(getRoomButtonEvent:) forControlEvents:UIControlEventTouchUpInside];

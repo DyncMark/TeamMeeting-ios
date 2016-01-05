@@ -56,6 +56,7 @@ typedef enum ViewState {
 @property(nonatomic,strong)UIView *shareViewGround;
 @property(nonatomic,strong)TalkView *talkView;
 @property(nonatomic,strong)UILabel *noUserTip;
+@property(nonatomic,assign)BOOL isViewLoad;
 
 - (void)hidenMenuView:(BOOL)enable;
 - (void)hidenBarView;
@@ -68,21 +69,12 @@ typedef enum ViewState {
 - (void)viewWillAppear:(BOOL)animated {
     
     [super viewWillAppear:animated];
+    if (self.isViewLoad)
+        return;
+    self.isViewLoad = YES;
+    
     [self.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:[UIImage new]];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    
-    [super viewWillDisappear:animated];
-    [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-    [self.navigationController.navigationBar setShadowImage:nil];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-}
-
-- (void)viewDidLoad {
-    
-    [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo) name:OPENVIDEO object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteVideoChange:) name:@"REMOTEVIDEOCHANGE" object:nil];
@@ -102,6 +94,10 @@ typedef enum ViewState {
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapEvent)];
     tapGesture.delegate = self;
     [self.view addGestureRecognizer:tapGesture];
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panEvent:)];
+    panGesture.delegate = self;
+    [self.view addGestureRecognizer:panGesture];
+    
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     self.micStateImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"micState"]];
     self.micStateImage.frame = CGRectMake(self.view.bounds.size.width - 40, 66, 40, 40);
@@ -142,8 +138,39 @@ typedef enum ViewState {
     [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, CGRectGetMidY(self.menuView.frame) - 80)];
     [self.view addSubview:self.noUserTip];
     [self.view addSubview:self.micStateImage];
+    [self performSelector:@selector(loadTableView) withObject:nil afterDelay:0.2];
+}
+
+- (void)loadTableView {
     
-    //[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    self.rootView = [[RootViewController alloc] init];
+    self.rootView.parentViewCon = self;
+    self.rootView.view.backgroundColor = [UIColor clearColor];
+    self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    CGFloat rootViewWidth = isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100);
+    self.rootView.view.frame = CGRectMake(0 - rootViewWidth,self.view.bounds.origin.y, rootViewWidth, self.view.bounds.size.height);
+    [self initChatBar];
+    self.chatBarView.hidden = YES;
+    [self.view addSubview:self.rootView.view];
+    
+}
+
+- (void)viewDidLoad {
+    
+    [super viewDidLoad];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setShadowImage:nil];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+   
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -174,7 +201,7 @@ typedef enum ViewState {
             
         } completion:^(BOOL finished) {
             
-        
+            
         }];
 
     } else {
@@ -216,6 +243,57 @@ typedef enum ViewState {
 - (void)openVideo {
     
     [self.callViewCon videoEnable:YES];
+}
+
+
+- (void)panEvent:(UIPanGestureRecognizer *)gesture {
+    
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    CGPoint startPoint;
+    CGPoint endPoint;
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        
+        startPoint = [gesture translationInView:self.view];
+    
+        
+    } else if (gesture.state == UIGestureRecognizerStateChanged) {
+        
+        endPoint = [gesture translationInView:self.view];
+        [self.rootView.view setFrame:CGRectMake(self.rootView.view.frame.origin.x + endPoint.x, self.rootView.view.frame.origin.y, self.rootView.view.bounds.size.width, self.rootView.view.bounds.size.height)];
+        
+        [self.menuView setFrame:CGRectMake(self.menuView.frame.origin.x + endPoint.x, self.menuView.frame.origin.y, self.menuView.frame.size.width, self.menuView.frame.size.height)];
+        
+        [self.noUserTip setFrame:CGRectMake(self.noUserTip.frame.origin.x + endPoint.x, self.noUserTip.frame.origin.y, self.noUserTip.frame.size.width, self.noUserTip.frame.size.height)];
+        [gesture setTranslation:CGPointMake(0, 0) inView:self.view];
+        
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        
+       CGFloat rootViewWidth = isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100);
+        if (fabsf(self.rootView.view.frame.origin.x) <= rootViewWidth/2 || self.rootView.view.frame.origin.x > 0) {
+            
+            [UIView animateWithDuration:0.2 animations:^{
+                
+                [self.rootView.view setFrame:CGRectMake(0,self.rootView.view.frame.origin.y, self.rootView.view.bounds.size.width, self.rootView.view.bounds.size.height)];
+                [self.menuView setCenter:CGPointMake(self.view.bounds.size.width/2 + self.view.bounds.size.width/4, self.menuView.center.y)];
+                [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2 + self.view.bounds.size.width/4, self.noUserTip.center.y)];
+            }];
+            
+            
+        } else {
+            
+            [UIView animateWithDuration:0.2 animations:^{
+                
+                [self.rootView.view setFrame:CGRectMake(0 - rootViewWidth,self.rootView.view.frame.origin.y, self.rootView.view.bounds.size.width, self.rootView.view.bounds.size.height)];
+                [self.menuView setCenter:CGPointMake(self.view.bounds.size.width/2, self.menuView.center.y)];
+                [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, self.noUserTip.center.y)];
+            }];
+            [self.rootView resginKeyBord];
+        }
+    }
+    
 }
 
 - (void)tapEvent {
@@ -295,7 +373,6 @@ typedef enum ViewState {
 
 - (void)initBar {
     
-    
     [self.barView removeFromSuperview];
     BOOL isVertical = YES;
     NSUInteger width = self.view.bounds.size.width;
@@ -311,7 +388,7 @@ typedef enum ViewState {
         self.barView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         UIButton *chatButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
-        [chatButton addTarget:self action:@selector(goToChat) forControlEvents:UIControlEventTouchUpInside];
+        [chatButton addTarget:self action:@selector(goToChat:) forControlEvents:UIControlEventTouchUpInside];
         [chatButton setBackgroundColor:[UIColor clearColor]];
         chatButton.frame = CGRectMake(10, 0, 49, 40);
         [chatButton setCenter:CGPointMake(chatButton.center.x, self.barView.bounds.size.height/2 + 10)];
@@ -348,7 +425,7 @@ typedef enum ViewState {
         self.barView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         UIButton *chatButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [chatButton setImage:[UIImage imageNamed:@"chat"] forState:UIControlStateNormal];
-        [chatButton addTarget:self action:@selector(goToChat) forControlEvents:UIControlEventTouchUpInside];
+        [chatButton addTarget:self action:@selector(goToChat:) forControlEvents:UIControlEventTouchUpInside];
         [chatButton setBackgroundColor:[UIColor clearColor]];
         chatButton.frame = CGRectMake(10, 0, 49, 40);
         [chatButton setCenter:CGPointMake(chatButton.center.x, self.barView.bounds.size.height/2 + 10)];
@@ -360,7 +437,7 @@ typedef enum ViewState {
         shareButton.center = CGPointMake(shareButton.center.x, self.barView.bounds.size.height/2 + 10);
         
         UILabel *naiTitle = [[UILabel alloc] init];
-        //naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+        naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
         [naiTitle setTextColor:[UIColor whiteColor]];
         naiTitle.text = self.roomItem.roomName;
         [naiTitle setFont:[UIFont boldSystemFontOfSize:18]];
@@ -611,21 +688,48 @@ typedef enum ViewState {
 
 - (void)closeChatView {
     
-    [self showBarView];
-    self.lineView.hidden = YES;
-    self.chatBarView.hidden = YES;
-    [UIView animateWithDuration:0.1 animations:^{
+    
+    if (ISIPAD) {
         
-        self.menuView.alpha = 1;
-        self.videoGroudImage.alpha = 0;
+        self.lineView.hidden = YES;
+        self.chatBarView.hidden = YES;
+        [UIView animateWithDuration:0.1 animations:^{
+            
+            self.menuView.alpha = 1;
+            self.videoGroudImage.alpha = 0;
+            
+        } completion:^(BOOL finished) {
+            
+            self.videoGroudImage.hidden = YES;
+            [self.rootView.view removeFromSuperview];
         
-    } completion:^(BOOL finished) {
+        }];
+        [UIView animateWithDuration:0.3 animations:^{
+            
+            [self.menuView setCenter:CGPointMake(self.view.bounds.size.width/2, self.menuView.center.y)];
+            [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, self.noUserTip.center.y)];
+            
+        }];
+        self.state = VIDEOSTATE;
         
-        self.videoGroudImage.hidden = YES;
-        [self.rootView.view removeFromSuperview];
-        //[self initBar];
-    }];
-    self.state = VIDEOSTATE;
+    } else {
+        
+        [self showBarView];
+        self.lineView.hidden = YES;
+        self.chatBarView.hidden = YES;
+        [UIView animateWithDuration:0.1 animations:^{
+            
+            self.menuView.alpha = 1;
+            self.videoGroudImage.alpha = 0;
+            
+        } completion:^(BOOL finished) {
+            
+            self.videoGroudImage.hidden = YES;
+            [self.rootView.view removeFromSuperview];
+            //[self initBar];
+        }];
+        self.state = VIDEOSTATE;
+    }
 }
 
 - (void)oritionChange {
@@ -646,28 +750,71 @@ typedef enum ViewState {
     self.state = CHATSTATE;
 }
 
-- (void)goToChat {
+- (void)goToChat:(UIButton *)button {
     
-    [self.rootView.view removeFromSuperview];
-    self.rootView = [[RootViewController alloc] init];
-    self.rootView.parentViewCon = self;
-    self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.rootView.view.frame = self.view.bounds;
-    
-    [self hidenBarView];
-    [self initChatBar];
-    self.lineView.hidden = NO;
-    self.chatBarView.hidden = NO;
-    self.videoGroudImage.hidden = NO;
-    [self.view addSubview:self.rootView.view];
-    self.rootView.view.backgroundColor = [UIColor clearColor];
-    [UIView animateWithDuration:0.3 animations:^{
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    if (ISIPAD) {
         
-        self.videoGroudImage.alpha = 1;
-        self.menuView.alpha = 0;
-    }];
+        button.selected = !button.selected;
+        if (!button.selected) {
+        
+            [self closeChatView];
+            return;
+        }
+        
+        [self.rootView.view removeFromSuperview];
+        self.rootView = [[RootViewController alloc] init];
+        self.rootView.parentViewCon = self;
+        self.rootView.view.backgroundColor = [UIColor clearColor];
+        self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        self.rootView.view.frame = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y, isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100), self.view.bounds.size.height);
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            
+            [self.menuView setCenter:CGPointMake(self.view.bounds.size.width/2 + self.view.bounds.size.width/4, self.menuView.center.y)];
+            [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2 + self.view.bounds.size.width/4, self.noUserTip.center.y)];
+            
+        }];
+        //[self hidenBarView];
+        [self initChatBar];
+        self.chatBarView.hidden = YES;
+        self.lineView.hidden = NO;
+        self.videoGroudImage.hidden = NO;
+        [self.view addSubview:self.rootView.view];
+        [UIView animateWithDuration:0.3 animations:^{
+            
+            self.videoGroudImage.alpha = 1;
+        }];
+        
+    } else {
+        
+        [self.rootView.view removeFromSuperview];
+        self.rootView = [[RootViewController alloc] init];
+        self.rootView.parentViewCon = self;
+        self.rootView.view.backgroundColor = [UIColor clearColor];
+        self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        self.rootView.view.frame = self.view.bounds;
+        [self hidenBarView];
+        [self initChatBar];
+        self.chatBarView.hidden = NO;
+        
+        self.lineView.hidden = NO;
+        self.videoGroudImage.hidden = NO;
+        [self.view addSubview:self.rootView.view];
+        [UIView animateWithDuration:0.3 animations:^{
+            
+            self.videoGroudImage.alpha = 1;
+            self.menuView.alpha = 0;
+        }];
+    }
+    
+    
     self.state = CHATSTATE;
 }
+
 
 - (void)menuClick:(LockerButton *)item {
     
@@ -748,11 +895,19 @@ typedef enum ViewState {
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    if (ISIPAD) {
+        
+        self.rootView.view.frame = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y, isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100), self.view.bounds.size.height);
+    }
     if (self.state == CHATSTATE) {
         
         [self oritionChange];
         
-    } else if (self.state == VIDEOSTATE){
+    } else if (self.state == VIDEOSTATE) {
         
         [self closeChatView];
         [self initBar];
