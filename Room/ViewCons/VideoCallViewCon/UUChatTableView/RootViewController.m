@@ -31,21 +31,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    //[self initBar];
     [self addRefreshViews];
     [self loadBaseViewsAndData];
     self.view.backgroundColor = [UIColor clearColor];
     self.chatTableView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.5];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(tableViewScrollToBottom) name:UIKeyboardDidShowNotification object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    //add notification
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(tableViewScrollToBottom) name:UIKeyboardDidShowNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -128,6 +126,13 @@
     
     [self.chatTableView reloadData];
     [self tableViewScrollToBottom];
+}
+
+- (void)resginKeyBord {
+    
+    [IFView.TextViewInput setText:@""];
+    [IFView.TextViewInput resignFirstResponder];
+    
 }
 
 - (void)hidenInput {
@@ -265,7 +270,7 @@
 {
     [self.chatModel addSpecifiedItem:dic];
     [self.chatTableView reloadData];
-    [self performSelector:@selector(tableViewScrollToBottom) withObject:nil afterDelay:0.1];
+    [self performSelector:@selector(tableViewScrollToBottom) withObject:nil afterDelay:3];
 }
 
 #pragma mark - tableView delegate & datasource

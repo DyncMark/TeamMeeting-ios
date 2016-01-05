@@ -14,4 +14,5 @@
 @property(nonatomic,assign)id parentViewCon;
 - (void)resetInputFrame:(CGRect)rect;
 - (void)hidenInput;
+- (void)resginKeyBord;
 @end
