@@ -78,11 +78,25 @@
         CGFloat screenH = [UIScreen mainScreen].bounds.size.height;
         screenW = screenW > screenH ? screenW : screenH;
     }
+    if (ISIPAD) {
+        
+        if (vertical) {
+            
+            screenW = [UIScreen mainScreen].bounds.size.width/2 - 50;
+            
+        } else {
+            
+            CGFloat screenH = [UIScreen mainScreen].bounds.size.height;
+            screenW = screenW > screenH ? screenW : screenH;
+            screenW = screenW/2 - 100;
+        }
+    }
+    
     // 1、计算时间的位置
     if (_showTime){
         CGFloat timeY = ChatMargin;
         CGSize timeSize = [_message.strTime sizeWithFont:ChatTimeFont constrainedToSize:CGSizeMake(300, 100) lineBreakMode:NSLineBreakByWordWrapping];
-
+        
         CGFloat timeX = (screenW - timeSize.width) / 2;
         _timeF = CGRectMake(timeX, timeY, timeSize.width + ChatTimeMarginW, timeSize.height + ChatTimeMarginH);
     }
@@ -103,7 +117,7 @@
     //CGFloat contentX = CGRectGetMaxX(_iconF)+ChatMargin;
     CGFloat contentX = ChatMargin;
     CGFloat contentY = iconY;
-   
+    
     //根据种类分
     CGSize contentSize;
     switch (_message.type) {

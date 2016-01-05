@@ -26,6 +26,7 @@
 #import "NtreatedDataManage.h"
 #import "UIView+Category.h"
 #import "AppDelegate.h"
+#import "NtreatedDataManage.h"
 
 static NSString *kRoomCellID = @"RoomCell";
 
@@ -46,6 +47,7 @@ static NSString *kRoomCellID = @"RoomCell";
 @property (nonatomic, assign) UIInterfaceOrientation oldInterface;
 @property (nonatomic, strong) UIImageView *listBgView;
 @property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, strong) UIView *barView;
 
 @end
 
@@ -55,6 +57,7 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[ASNetwork sharedNetwork] removeObserver:self forKeyPath:@"_netType" context:nil];
 }
 
@@ -78,7 +81,6 @@ static NSString *kRoomCellID = @"RoomCell";
     self.listBgView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:self.listBgView];
     
-    
     self.navView = [NavView new];
     self.navView.title = @"房间";
     [self.view addSubview:self.navView];
@@ -94,7 +96,7 @@ static NSString *kRoomCellID = @"RoomCell";
     
     self.getRoomButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.getRoomButton setTitle:@"获取房间" forState:UIControlStateNormal];
-     [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.getRoomButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
     [self.view addSubview:self.getRoomButton];
     [self.getRoomButton addTarget:self action:@selector(getRoomButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
@@ -178,7 +180,8 @@ static NSString *kRoomCellID = @"RoomCell";
     
     self.oldInterface = self.interfaceOrientation;
     [self refreshImage];
-   
+
+    [[NtreatedDataManage sharedManager] dealwithDataWithTarget:self];
 }
 
 -(BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldReceiveTouch:(UITouch*)touch {
@@ -427,6 +430,8 @@ static NSString *kRoomCellID = @"RoomCell";
 // 添加
 - (void)addRoomWithRoomName:(NSString*)roomName withPrivate:(BOOL)isPrivate
 {
+    UISwitch *privateRoomEnable = (UISwitch *)[self.barView viewWithTag:500];
+    
     RoomItem *roomItem = [dataArray objectAtIndex:0];
     roomItem.roomName = roomName;
     
@@ -442,6 +447,7 @@ static NSString *kRoomCellID = @"RoomCell";
     NtreatedData *data = [[NtreatedData alloc] init];
     data.actionType = CreateRoom;
     data.isPrivate = isPrivate;
+    data.isPrivate = privateRoomEnable.on;
     data.item = roomItem;
     [[NtreatedDataManage sharedManager] addData:data];
     
