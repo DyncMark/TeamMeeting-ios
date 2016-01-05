@@ -10,5 +10,5 @@
 #define Common_h
 
 #define ISIPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) // 判断设备是不是iPad
-
+#define ISIPADMainList 320   // 列表的宽度
 #endif /* Common_h */

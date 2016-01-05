@@ -34,9 +34,9 @@ static ServerVisit *_server = nil;
     NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:uid,@"userid",utype,@"uactype",gtype,@"uregtype",ltype,@"ulogindev",token,@"upushtoken", nil];
     [NetRequestUtils requestWithInterfaceStrWithHeader:@"users/init" withRequestType:PostType parameters:parameters completion:completion];
 }
-+ (void)applyRoomWithSign:(NSString *)gn mettingId:(NSString*)mid mettingname:(NSString *)mname mettingCanPush:(NSString*)pushNum mettingtype:(NSString *)mtype mettingdesc:(NSString *)mdesc completion:(void (^)(AFHTTPRequestOperation *operation ,id responseData,NSError *error))completion {
++ (void)applyRoomWithSign:(NSString *)gn mettingId:(NSString *)mid mettingname:(NSString *)mname mettingCanPush:(NSString *)pushNum mettingtype:(NSString *)mtype meetenable:(NSString *)metable mettingdesc:(NSString *)mdesc completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
     
-    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mname,@"meetingname",mtype,@"meetingtype",mdesc,@"meetdesc",mid,@"meetingid",pushNum,@"pushable", nil];
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mname,@"meetingname",mtype,@"meetingtype",mdesc,@"meetdesc",mid,@"meetingid",pushNum,@"pushable",metable,@"meetenable", nil];
     [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/applyRoom" withRequestType:PostType parameters:parameters completion:completion];
 }
 
@@ -93,6 +93,75 @@ static ServerVisit *_server = nil;
     [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/getRoomList" withRequestType:PostType parameters:parameters completion:completion];
 }
 
++ (void)updateRoomMemNumberWithSign:(NSString *)gn meetingID:(NSString *)mid meetingMemNumber:(NSString *)meetNumer completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",meetNumer,@"meetingMemNumber",nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/updateRoomMemNumber" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)getMeetingMsgListWithSign:(NSString *)gn meetingID:(NSString *)mid pageNum:(NSString *)page pageSize:(NSString *)size completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion{
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",page,@"pageNum",size,@"pageSize", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/getMeetingMsgList" withRequestType:PostType parameters:parameters completion:completion];
+    
+}
+
++ (void)insertMeetingMsgWithSign:(NSString *)gn meetingID:(NSString *)mid messageid:(NSString *)mesgId messageType:(NSString *)mesgType sessionID:(NSString *)sessid strMsag:(NSString *)msg userId:(NSString *)userid completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion{
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",mesgId,@"messageid", mesgType,@"messagetype",sessid,@"sessionid",msg,@"strMsg",userid,@"userid",  nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/insertMeetingMsg" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)insertSessionMeetingInfoWithSign:(NSString *)gn meetingID:(NSString *)mid sessionID:(NSString *)sessid sessionStatus:(NSString *)status sessionType:(NSString *)type sessionNumber:(NSString *)sNumber completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",sessid,@"sessionid", status,@"sessionstatus",type,@"sessiontype",sNumber,@"*sessionnumber", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/insertSessionMeetingInfo" withRequestType:PostType parameters:parameters completion:completion];
+    
+}
+
++ (void)updateSessionMeetingStatusWithSign:(NSString *)gn sessionID:(NSString *)sessid sessionStatus:(NSString *)status completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",sessid,@"sessionid",status,@"sessionstatus", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/updateSessionMeetingStatus" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)updateSessionMeetingEndtimeWithSign:(NSString *)gn sessionid:(NSString *)sessid completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",sessid,@"sessionid", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/updateSessionMeetingEndtime" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)updateSessionMeetingNumberWithSign:(NSString *)gn sessionID:(NSString *)sessid sessionNumber:(NSString *)sNumber completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",sessid,@"sessionid",sNumber,@"sessionnumber", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/updateSessionMeetingNumber" withRequestType:PostType parameters:parameters completion:completion];
+    
+}
+
++ (void)updateUserMeetingJointimeWithSign:(NSString *)gn meetingID:(NSString *)mid completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/updateUserMeetingJointime" withRequestType:PostType parameters:parameters completion:completion];
+    
+}
+
++ (void)insertUserMeetingRoomWithSign:(NSString *)gn meetingID:(NSString *)mid completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/insertUserMeetingRoom" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)pushMeetingMsgWithSign:(NSString *)gn meetingID:(NSString *)mid pushMsg:(NSString *)msg notification:(NSString *)noti completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",mid,@"meetingid",msg,@"pushMsg",noti,@"notification", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/pushMeetingMsg" withRequestType:PostType parameters:parameters completion:completion];
+}
+
++ (void)pushCommonMsgWithSign:(NSString *)gn targetID:(NSString *)target pushMsg:(NSString *)msg notification:(NSString *)noti completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
+    
+    NSDictionary *parameters = [NSDictionary dictionaryWithObjectsAndKeys:gn,@"sign",target,@"targetid",msg,@"pushMsg",noti,@"notification", nil];
+    [NetRequestUtils requestWithInterfaceStrWithHeader:@"meeting/pushCommonMsg" withRequestType:PostType parameters:parameters completion:completion];
+}
 
 + (void)signoutRoomWithSign:(NSString *)gn completion:(void (^)(AFHTTPRequestOperation *, id, NSError *))completion {
     

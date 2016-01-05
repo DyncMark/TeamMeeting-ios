@@ -12,6 +12,7 @@
 typedef NS_ENUM(NSInteger, PushViewType) {
     PushViewTypeDefault = 0,                         // default type
     PushViewTypeSetting ,                            // setting type
+    PushViewTypeNone,                                // no type
 };
 
 @protocol PushViewDelegate <NSObject>
@@ -32,4 +33,5 @@ typedef NS_ENUM(NSInteger, PushViewType) {
 
 - (void)showWithType:(PushViewType)type withObject:(id)object withIndex:(NSInteger)index;
 
+- (void)updateLayout;
 @end

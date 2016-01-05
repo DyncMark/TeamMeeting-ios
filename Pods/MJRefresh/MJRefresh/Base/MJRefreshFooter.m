@@ -48,21 +48,16 @@
         // 监听scrollView数据的变化
         [self.scrollView setReloadDataBlock:^(NSInteger totalDataCount) {
             if (self.isAutomaticallyHidden) {
-                self.hidden = (totalDataCount == 0);
+                self.hidden = (self.scrollView.totalDataCount == 0);
             }
         }];
     }
 }
 
 #pragma mark - 公共方法
-- (void)endRefreshingWithNoMoreData
-{
-    self.state = MJRefreshStateNoMoreData;
-}
-
 - (void)noticeNoMoreData
 {
-    [self endRefreshingWithNoMoreData];
+    self.state = MJRefreshStateNoMoreData;
 }
 
 - (void)resetNoMoreData

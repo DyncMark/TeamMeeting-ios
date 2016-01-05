@@ -6,3 +6,4 @@ pod 'TTTAttributedLabel', '~> 1.13.3'
 pod 'LBBlurredImage', '~> 0.2.2'
 pod 'DXPopover', '~> 0.1.0'
 pod 'MJRefresh', '~> 2.4.3'
+

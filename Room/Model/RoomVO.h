@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-@interface RoomItem:NSObject
+@interface RoomItem : NSObject <NSCoding>
 @property (nonatomic, strong) NSString *roomName;           // 会议名字
 @property (nonatomic, strong) NSString *roomID;             // 会议id
 @property (nonatomic, strong) NSString *userID;             // 会议创建者

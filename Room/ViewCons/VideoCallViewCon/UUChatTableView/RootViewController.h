@@ -11,6 +11,7 @@
 @interface RootViewController : UIViewController
 
 
+@property(nonatomic,assign)id parentViewCon;
 - (void)resetInputFrame:(CGRect)rect;
 - (void)hidenInput;
 @end

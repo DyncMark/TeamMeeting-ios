@@ -16,4 +16,5 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "Common.h"
+#import "RoomApp.h"
 #endif

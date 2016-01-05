@@ -30,5 +30,7 @@
 
 @property (nonatomic, assign)id<UUMessageCellDelegate>delegate;
 
+- (void)setMessageFrame:(UUMessageFrame *)messageFrame isVertical:(BOOL)vertical;
+
 @end
 
