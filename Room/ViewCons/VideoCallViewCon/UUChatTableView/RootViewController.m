@@ -75,6 +75,8 @@
 
 - (void)addRefreshViews
 {
+    
+    return;
     __weak typeof(self) weakSelf = self;
     
     //load more
@@ -139,6 +141,15 @@
     IFView = [[UUInputFunctionView alloc]initWithSuperVC:self];
     IFView.delegate = self;
     [self.view addSubview:IFView];
+    
+    NSArray *visible = [self.chatTableView visibleCells];
+    NSMutableArray *indexPaths = [NSMutableArray array];
+    for (UITableViewCell *cell in visible) {
+        
+        NSIndexPath *path = [self.chatTableView  indexPathForCell:cell];
+        [indexPaths addObject:path];
+    }
+    [self.chatTableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
 }
 
 -(void)keyboardChange:(NSNotification *)notification
@@ -219,7 +230,6 @@
 {
     if (self.chatModel.dataSource.count==0)
         return;
-    
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.chatModel.dataSource.count-1 inSection:0];
     [self.chatTableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
 }
@@ -254,7 +264,7 @@
 {
     [self.chatModel addSpecifiedItem:dic];
     [self.chatTableView reloadData];
-    [self tableViewScrollToBottom];
+    [self performSelector:@selector(tableViewScrollToBottom) withObject:nil afterDelay:0.1];
 }
 
 #pragma mark - tableView delegate & datasource
@@ -269,7 +279,7 @@
         cell.delegate = self;
         cell.backgroundColor = [UIColor clearColor];
     }
-    [cell setMessageFrame:self.chatModel.dataSource[indexPath.row]];
+    [cell setMessageFrame:self.chatModel.dataSource[indexPath.row] isVertical:[self.parentViewCon isVertical]];
     return cell;
 }
 

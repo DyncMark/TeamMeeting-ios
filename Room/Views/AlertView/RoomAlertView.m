@@ -27,7 +27,7 @@
         self.backgroundColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:0.4];
         if (type == AlertViewNotNetType) {
             if (IsiPad) {
-                self.alertView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 360, 420)];
+                self.alertView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 400)];
             }else{
                   self.alertView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth([UIScreen mainScreen].bounds) - 80, CGRectGetHeight([UIScreen mainScreen].bounds)/2)];
             }

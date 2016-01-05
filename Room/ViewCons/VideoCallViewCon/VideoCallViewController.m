@@ -16,6 +16,7 @@
 #import "ReceiveCallViewController.h"
 #import <GLKit/GLKit.h>
 #import "TalkView.h"
+#import "WXApiRequestHandler.h"
 @implementation UINavigationController (Orientations)
 
 
@@ -105,7 +106,6 @@ typedef enum ViewState {
     self.micStateImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"micState"]];
     self.micStateImage.frame = CGRectMake(self.view.bounds.size.width - 40, 66, 40, 40);
     self.micStateImage.hidden = YES;
-    [self.view addSubview:self.micStateImage];
     
     self.videoGroudImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"videoBackgroud"]];
     self.videoGroudImage.userInteractionEnabled = NO;
@@ -141,7 +141,9 @@ typedef enum ViewState {
     self.noUserTip.text = @"Waiting for others to join the room";
     [self.noUserTip setCenter:CGPointMake(self.view.bounds.size.width/2, CGRectGetMidY(self.menuView.frame) - 80)];
     [self.view addSubview:self.noUserTip];
-
+    [self.view addSubview:self.micStateImage];
+    
+    //[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(messageTest) userInfo:nil repeats:YES];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -242,6 +244,7 @@ typedef enum ViewState {
             
         }];
         [self hidenMenuView:NO];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"FULLSCREEN" object:[NSNumber numberWithBool:NO]];
         
     } else {
         
@@ -254,6 +257,7 @@ typedef enum ViewState {
             self.barView.hidden = YES;
         }];
         [self hidenMenuView:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"FULLSCREEN" object:[NSNumber numberWithBool:YES]];
     }
 }
 
@@ -358,7 +362,7 @@ typedef enum ViewState {
         UILabel *naiTitle = [[UILabel alloc] init];
         //naiTitle.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
         [naiTitle setTextColor:[UIColor whiteColor]];
-        naiTitle.text = @"5566";
+        naiTitle.text = self.roomItem.roomName;
         [naiTitle setFont:[UIFont boldSystemFontOfSize:18]];
         [naiTitle setTextAlignment:NSTextAlignmentCenter];
         [naiTitle setLineBreakMode:NSLineBreakByWordWrapping];
@@ -445,6 +449,7 @@ typedef enum ViewState {
         
         [self.popver dismiss];
         [self.shareViewGround performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:0.2];
+        self.popver = nil;
     }
 }
 
@@ -486,8 +491,9 @@ typedef enum ViewState {
     messageImage.backgroundColor = [UIColor clearColor];
     [shareView addSubview:messageImage];
     
-    UIImageView *mailImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
-    [mailImage setImage:[UIImage imageNamed:@"mailInvite"]];
+    UIButton *mailImage = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    [mailImage setBackgroundImage:[UIImage imageNamed:@"mailInvite"] forState:UIControlStateNormal];
+    [mailImage addTarget:self action:@selector(weChatShare) forControlEvents:UIControlEventTouchUpInside];
     mailImage.backgroundColor = [UIColor clearColor];
     [shareView addSubview:mailImage];
     
@@ -524,7 +530,7 @@ typedef enum ViewState {
     
     UILabel *linkTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, shareView.bounds.size.width - (isVertical ? 60 : 120), 56)];
     [linkTitle setFont:[UIFont systemFontOfSize:12]];
-    linkTitle.text = @"room.com/#/...EE83927489327";
+    linkTitle.text = [NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID];
     [linkTitle setTextColor:[UIColor grayColor]];
     [linkTitle setBackgroundColor:[UIColor clearColor]];
     [linkTitle setTextAlignment:NSTextAlignmentCenter];
@@ -563,9 +569,11 @@ typedef enum ViewState {
         [copyLink setCenter:CGPointMake(copyLink.center.x, shareView.bounds.size.height - 30)];
         
     }
-    if (self.popver)
+    if (self.popver) {
+        
         [self.popver dismiss];
-    
+        self.popver = nil;
+    }
     self.popver = [DXPopover popover];
     self.popver.sideEdge = 15;
     self.popver.arrowSize = CGSizeMake(15, 15);
@@ -588,6 +596,17 @@ typedef enum ViewState {
         [self.popver showAtPoint:CGPointMake(self.view.bounds.size.width - 25, 65) popoverPostion:DXPopoverPositionDown withContentView:shareView inView:_shareViewGround];
         
     }
+}
+
+- (void)weChatShare {
+    
+    
+    [WXApiRequestHandler sendLinkURL:[NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID]
+                             TagName:nil
+                               Title:@"test"
+                         Description:@"test"
+                          ThumbImage:nil
+                             InScene:WXSceneSession];
 }
 
 - (void)closeChatView {
@@ -631,6 +650,7 @@ typedef enum ViewState {
     
     [self.rootView.view removeFromSuperview];
     self.rootView = [[RootViewController alloc] init];
+    self.rootView.parentViewCon = self;
     self.rootView.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.rootView.view.frame = self.view.bounds;
     
@@ -696,10 +716,10 @@ typedef enum ViewState {
     
     [_popver dismiss];
     MFMessageComposeViewController *controller = [[MFMessageComposeViewController alloc] init];
-    
+    controller.navigationBar.barTintColor = [UIColor whiteColor];
     if([MFMessageComposeViewController canSendText])
     {
-        controller.body = @"test";
+        controller.body = [NSString stringWithFormat:@"http://192.168.7.62/demo/rtpmp/rtpmp.html#%@",self.roomItem.roomID];
         
         controller.recipients = nil;
         
@@ -720,6 +740,7 @@ typedef enum ViewState {
     if (self.popver) {
         
         [self.popver dismiss];
+        self.popver = nil;
     }
     self.micStateImage.alpha = 0;
     self.noUserTip.alpha = 0;
@@ -741,6 +762,15 @@ typedef enum ViewState {
        [self performSelector:@selector(shareView) withObject:nil afterDelay:0.3];
     }
     [self adjustUI];
+}
+
+- (BOOL)isVertical {
+    
+    BOOL isVertical = YES;
+    NSUInteger width = self.view.bounds.size.width;
+    NSUInteger height = self.view.bounds.size.height;
+    isVertical = width > height ? NO : YES;
+    return isVertical;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {

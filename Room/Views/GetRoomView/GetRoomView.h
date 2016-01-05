@@ -16,7 +16,7 @@
 
 - (void)renameRoomNameScuess:(NSString*)roomName;
 
-- (void)getRoomWithRoomName:(NSString*)roomName; // get room name
+- (void)getRoomWithRoomName:(NSString*)roomName withPrivateMetting:(BOOL)isPrivate; // get room name
 
 - (void)cancleGetRoom;   // cancle get room
 

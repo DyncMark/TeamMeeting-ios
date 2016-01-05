@@ -15,7 +15,7 @@
 
 - (void)populateRandomDataSource {
     self.dataSource = [NSMutableArray array];
-    [self.dataSource addObjectsFromArray:[self additems:5]];
+    [self.dataSource addObjectsFromArray:[self additems:10]];
 }
 
 - (void)addRandomItemsToDataSource:(NSInteger)number{

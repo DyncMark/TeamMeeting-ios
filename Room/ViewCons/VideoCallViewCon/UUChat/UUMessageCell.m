@@ -155,8 +155,10 @@
 
 
 //内容及Frame设置
-- (void)setMessageFrame:(UUMessageFrame *)messageFrame{
+- (void)setMessageFrame:(UUMessageFrame *)messageFrame isVertical:(BOOL)vertical{
 
+    [messageFrame setMessage:messageFrame.message isVertical:vertical];
+   // [messageFrame setMessage:messageFrame.message];
     _messageFrame = messageFrame;
     UUMessage *message = messageFrame.message;
     

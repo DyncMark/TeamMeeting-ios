@@ -36,5 +36,6 @@
 @property (nonatomic, assign, readonly) CGFloat cellHeight;
 @property (nonatomic, strong) UUMessage *message;
 @property (nonatomic, assign) BOOL showTime;
+- (void)setMessage:(UUMessage *)message isVertical:(BOOL)vertical;
 
 @end
