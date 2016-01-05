@@ -10,6 +10,7 @@
 #import "PushView.h"
 #import "RoomViewCell.h"
 #import "UIImageView+LBBlurredImage.h"
+
 #import "GetRoomView.h"
 #import "VideoCallViewController.h"
 #import "RoomVO.h"
@@ -21,10 +22,16 @@
 #import "ASNetwork.h"
 #import "RoomAlertView.h"
 #import "UINavigationBar+Category.h"
+#import "NavView.h"
+#import "NtreatedDataManage.h"
+#import "UIView+Category.h"
+#import "AppDelegate.h"
 #import "NtreatedDataManage.h"
 
 
 static NSString *kRoomCellID = @"RoomCell";
+
+#define IPADLISTWIDTH 320
 
 @interface MainViewController ()<UITableViewDelegate,UITableViewDataSource,RoomViewCellDelegate,GetRoomViewDelegate,PushViewDelegate,MFMessageComposeViewControllerDelegate>
 
@@ -37,7 +44,10 @@ static NSString *kRoomCellID = @"RoomCell";
 @property (nonatomic, strong) NSMutableArray *tempDataArray; // 临时数据
 @property (nonatomic, strong) UIButton *cancleButton;    // 取消创建房间
 @property (nonatomic, strong) RoomAlertView *netAlertView;
-@property (nonatomic, strong) UIView *barView;
+@property (nonatomic, strong) NavView *navView;
+@property (nonatomic, assign) UIInterfaceOrientation oldInterface;
+@property (nonatomic, strong) UIImageView *listBgView;
+@property (nonatomic, strong) UIView *bgView;
 
 @end
 
@@ -47,7 +57,6 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[ASNetwork sharedNetwork] removeObserver:self forKeyPath:@"_netType" context:nil];
 }
 
@@ -55,8 +64,8 @@ static NSString *kRoomCellID = @"RoomCell";
     
     [super viewDidLoad];
     self.title = @"房间";
+    self.oldInterface = self.interfaceOrientation;
     self.view.backgroundColor = [UIColor clearColor];
-    [self.navigationController.navigationBar rm_setBackgroundColor:[UIColor blackColor]];
     
     [[ASNetwork sharedNetwork] addObserver:self forKeyPath:@"_netType" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
     
@@ -64,12 +73,19 @@ static NSString *kRoomCellID = @"RoomCell";
         dataArray = [[NSMutableArray alloc] initWithCapacity:5];
         tempDataArray = [[NSMutableArray alloc] initWithCapacity:5];
     }
-    
+    [self initUser];
     [self setBackGroundImageView];
     
-    [self initUser];
+    self.listBgView = [UIImageView new];
+    self.listBgView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.listBgView];
     
-    self.roomList = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.height-75) style:UITableViewStylePlain];
+    self.navView = [NavView new];
+    self.navView.title = @"房间";
+    [self.view addSubview:self.navView];
+
+    
+    self.roomList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.roomList.backgroundColor = [UIColor clearColor];
     self.roomList.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.roomList.delegate = self;
@@ -78,7 +94,6 @@ static NSString *kRoomCellID = @"RoomCell";
     [self.roomList registerClass:[RoomViewCell class] forCellReuseIdentifier:kRoomCellID];
     
     self.getRoomButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.getRoomButton.frame = CGRectMake(15, self.height - 60,self.view.bounds.size.width -30, 45);
     [self.getRoomButton setTitle:@"获取房间" forState:UIControlStateNormal];
     [self.getRoomButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.getRoomButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
@@ -87,117 +102,163 @@ static NSString *kRoomCellID = @"RoomCell";
     [self.getRoomButton setBackgroundColor:[UIColor colorWithRed:235.0/255.0 green:139.0/255.0 blue:75.0/255.0 alpha:1.0]];
     self.getRoomButton.layer.cornerRadius = 2;
     
-    self.push = [[PushView alloc] initWithFrame:[UIApplication sharedApplication].keyWindow.rootViewController.view.bounds];
-    self.push.delegate = self;
-    [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:self.push];
     
-    self.getRoomView = [[GetRoomView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.height) withParView:self.view];
+    
+    self.getRoomView = [[GetRoomView alloc] initWithFrame:CGRectMake(0, 64, self.view.bounds.size.width, CGRectGetHeight(self.view.frame)) withParView:self.view];
     self.getRoomView.delegate = self;
     
     self.cancleButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.cancleButton.frame = CGRectMake(0, 0, 40, 28);
+    self.cancleButton.frame = CGRectMake(15, 25, 35, 28);
     [self.cancleButton setTitle:@"取消" forState:UIControlStateNormal];
     self.cancleButton.titleLabel.font = [UIFont systemFontOfSize:16];
     self.cancleButton.titleLabel.textAlignment = NSTextAlignmentLeft;
     [self.cancleButton addTarget:self action:@selector(cancleButtonEvent:) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *cancleItem =[[UIBarButtonItem alloc] initWithCustomView:self.cancleButton];
-    self.navigationItem.leftBarButtonItem = cancleItem;
+    [self.navView addSubview:self.cancleButton];
     self.cancleButton.hidden = YES;
+    
     [[NtreatedDataManage sharedManager] dealwithDataWithTarget:self];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChange:) name:UIKeyboardWillHideNotification object:nil];
+    
+    if (ISIPAD) {
+        self.listBgView.frame = CGRectMake(0, 0, IPADLISTWIDTH, CGRectGetHeight(self.view.frame));
+        
+        self.navView.frame = CGRectMake(0, 0, IPADLISTWIDTH, 64);
+        self.roomList.frame = CGRectMake(0, 64, IPADLISTWIDTH,CGRectGetHeight(self.view.frame)-CGRectGetMaxY(self.navView.frame) -75);
+        self.getRoomButton.frame = CGRectMake(15, CGRectGetMaxY(self.view.frame) - 60,IPADLISTWIDTH -30, 45);
+        
+    }else{
+        self.listBgView.frame = CGRectMake(0, 0, self.view.bounds.size.width, CGRectGetHeight(self.view.frame));
+        
+        self.navView.frame = CGRectMake(0, 0, self.view.bounds.size.width, 64);
+        self.roomList.frame = CGRectMake(0, 64, self.view.bounds.size.width,CGRectGetHeight(self.view.frame)-CGRectGetMaxY(self.navView.frame) -75);
+        self.getRoomButton.frame = CGRectMake(15, CGRectGetMaxY(self.view.frame) - 60,self.view.bounds.size.width -30, 45);
+
+    }
+
+    self.push = [[PushView alloc] initWithFrame:self.view.bounds];
+    self.push.delegate = self;
+    AppDelegate *apple = [RoomApp shead].appDelgate;
+    [apple.window.rootViewController.view addSubview:self.push];
+    
+    [self.view bringSubviewToFront:self.navView];
+}
+// 旋转屏幕适配
+- (void)viewDidLayoutSubviews
+{
+    NSLog(@"viewDidLayoutSubviews:%ld",(long)self.interfaceOrientation);
+     [self refreshImage];
+    if (self.oldInterface == self.interfaceOrientation || !ISIPAD) {
+        return;
+    }else{
+         UIView *initView = [[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:400];
+        if (self.interfaceOrientation == UIInterfaceOrientationPortrait) {
+            if (initView) {
+                initView.frame = [UIScreen mainScreen].bounds;
+            }
+            self.listBgView.frame = CGRectMake(0, 0, IPADLISTWIDTH, CGRectGetHeight(self.view.frame));
+            self.navView.frame = CGRectMake(0, 0, IPADLISTWIDTH, 64);
+            self.roomList.frame = CGRectMake(0, 64, IPADLISTWIDTH,CGRectGetHeight(self.view.frame)-CGRectGetMaxY(self.navView.frame) -75);
+            self.getRoomButton.frame = CGRectMake(15, CGRectGetMaxY(self.view.frame) - 60,IPADLISTWIDTH -30, 45);
+            self.push.frame = self.view.bounds;
+            [self.push updateLayout];
+            UIImageView *bgImageView = [self.bgView viewWithTag:500];
+            bgImageView.image = [UIImage imageNamed:@"Default-Portrait"];
+        }else if(self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft || self.interfaceOrientation == UIInterfaceOrientationLandscapeRight){
+            if (initView) {
+                initView.frame = [UIScreen mainScreen].bounds;
+            }
+            self.listBgView.frame = CGRectMake(0, 0, IPADLISTWIDTH, CGRectGetHeight(self.view.frame));
+            self.navView.frame = CGRectMake(0, 0, IPADLISTWIDTH, 64);
+            self.roomList.frame = CGRectMake(0, 64, IPADLISTWIDTH,CGRectGetHeight(self.view.frame)-CGRectGetMaxY(self.navView.frame) -75);
+            self.getRoomButton.frame = CGRectMake(15, CGRectGetMaxY(self.view.frame) - 60,IPADLISTWIDTH -30, 45);
+             self.push.frame = self.view.bounds;
+            [self.push updateLayout];
+            UIImageView *bgImageView = [self.bgView viewWithTag:500];
+            bgImageView.image = [UIImage imageNamed:@"Default-Landscape"];
+        }
+    }
+    
+    self.oldInterface = self.interfaceOrientation;
+    [self refreshImage];
+
+    [[NtreatedDataManage sharedManager] dealwithDataWithTarget:self];
 }
 
-- (void)createRoomBar {
-    
-    if (self.barView)
-        [self.barView removeFromSuperview];
-        
-    self.barView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, 44)];
-    _barView.backgroundColor = [UIColor whiteColor];
-    UISwitch *privateRoomEnable = [[UISwitch alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 50, 0, 44, 44)];
-    privateRoomEnable.tag = 500;
-    privateRoomEnable.on = YES;
-    privateRoomEnable.center = CGPointMake(privateRoomEnable.center.x, self.barView.bounds.size.height/2);
-    [self.barView addSubview:privateRoomEnable];
-    
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
-    [title setText:@"设置房间是否私密"];
-    [title setTextColor:[UIColor blackColor]];
-    [title setCenter:CGPointMake(title.center.x, self.barView.bounds.size.height/2)];
-    
-    [self.barView addSubview:title];
-    [self.view addSubview:_barView];
-    
-}
-#pragma mark -private methods
-
--(void)keyboardChange:(NSNotification *)notification {
-    
-    NSDictionary *userInfo = [notification userInfo];
-    NSTimeInterval animationDuration;
-    UIViewAnimationCurve animationCurve;
-    CGRect keyboardEndFrame;
-    
-    [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] getValue:&animationCurve];
-    [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] getValue:&animationDuration];
-    [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardEndFrame];
-    
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:animationDuration];
-    [UIView setAnimationCurve:animationCurve];
-    
-    if (notification.name == UIKeyboardWillShowNotification) {
-        
-        [self createRoomBar];
-        [UIView animateWithDuration:0.2 animations:^{
-            
-            [self.barView setFrame:CGRectMake(0, self.view.bounds.size.height - keyboardEndFrame.size.height - 44, self.barView.bounds.size.width, self.barView.bounds.size.height)];
-            
-        }];
-        
-    } else {
-        
-        [UIView animateWithDuration:0.2 animations:^{
-            
-            [self.barView setFrame:CGRectMake(0, self.view.bounds.size.height, self.barView.bounds.size.width, self.barView.bounds.size.height)];
-        }];
+-(BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldReceiveTouch:(UITouch*)touch {
+    Class cellclass = NSClassFromString(@"UITableViewCellContentView");
+    if([touch.view isKindOfClass:cellclass])
+    {
+        return NO;
+    }else{
+        return YES;
     }
 }
 
+// 滤镜效果
+- (void)refreshImage
+{
+    UIImage *image = [self.bgView getImageWith:self.listBgView.frame];
+    if (!image) {
+        return;
+    }
+    [self.listBgView setImageToBlur:image  blurRadius:20 completionBlock:^(){}];
+}
+
+#pragma mark -private methods
 - (void)initUser
 {
     UIView *initView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    initView.backgroundColor = [UIColor clearColor];
     initView.tag = 400;
-    UIImageView *initViewBg = [[UIImageView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
+    AppDelegate *apple = [RoomApp shead].appDelgate;
+    [apple.window.rootViewController.view addSubview:initView];
+    
+    UIImageView *initViewBg = [UIImageView new];
     [initView addSubview:initViewBg];
     
-    [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:initView];
+    initViewBg.translatesAutoresizingMaskIntoConstraints = NO;
+    NSDictionary *views = NSDictionaryOfVariableBindings(initViewBg);
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[initViewBg]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[initViewBg]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
     
+
     int height = CGRectGetHeight(self.view.bounds);
     NSString *imageName;
     switch (height) {
         case 480:
-            imageName = @"LaunchImage-700@2x.png";
+            imageName = @"Default.png";
             break;
         case 568:
-            imageName = @"LaunchImage-700-568h@2x.png";
+            imageName = @"Default-568h";
             break;
         case 667:
-            imageName = @"LaunchImage-800-667h@2x.png";
+            imageName = @"Default-667h";
             break;
         case 736:
-            imageName = @"LaunchImage-800-Portrait-736h@3x";
+            imageName = @"Default-736h";
+            break;
+        case 768:
+            imageName = @"Default-Landscape";
+            break;
+        case 1024:
+            imageName = @"Default-Portrait";
             break;
         default:
-            imageName = @"LaunchImage-800-Portrait-736h@3x.png";
+            imageName = @"Default-736h";
             
             break;
     }
     initViewBg.image = [UIImage imageNamed:imageName];
     UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicatorView.center = CGPointMake(initView.center.x, initView.center.y -180);
     [initView addSubview:activityIndicatorView];
+    
+    activityIndicatorView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSDictionary* acViews = NSDictionaryOfVariableBindings(activityIndicatorView);
+    //设置高度
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-[activityIndicatorView]-|" options:NSLayoutFormatAlignAllCenterX metrics:nil views:acViews]];
+   // 上面的代码可以让prgrssView 水平居中。垂直代码如下
+    [initView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[activityIndicatorView]-380-|" options:NSLayoutFormatAlignAllTop metrics:nil views:acViews]];
     [activityIndicatorView startAnimating];
 }
 
@@ -233,7 +294,8 @@ static NSString *kRoomCellID = @"RoomCell";
                     [weakSelf.dataArray addObjectsFromArray:roomVO.deviceItemsList];
                 }
                 [weakSelf.roomList reloadData];
-                UIView *initView = [[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:400];
+                AppDelegate *apple = [RoomApp shead].appDelgate;
+                UIView *initView = [apple.window.rootViewController.view viewWithTag:400];
                 if (initView) {
                     [UIView animateWithDuration:0.3 animations:^{
                         initView.alpha = 0.0;
@@ -252,41 +314,50 @@ static NSString *kRoomCellID = @"RoomCell";
 
 - (void)setBackGroundImageView
 {
-    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-    [self.view addSubview:bgImageView];
+    self.bgView = [[UIView alloc] init];
+    [self.view addSubview:self.bgView ];
+    UIImageView *bgImageView = [UIImageView new];
+    bgImageView.tag = 500;
+    [self.bgView addSubview:bgImageView];
+    
+    _bgView.translatesAutoresizingMaskIntoConstraints = NO;
+    bgImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_bgView,bgImageView);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_bgView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_bgView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    
+    [_bgView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[bgImageView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    [_bgView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[bgImageView]-0-|" options:NSLayoutFormatAlignmentMask metrics:nil views:views]];
+    
     int height = CGRectGetHeight(self.view.bounds);
     
     NSString *imageName;
     switch (height) {
         case 480:
-            imageName = @"blackimg-Default@2x.png";
+            imageName = @"Default.png";
             break;
         case 568:
-            imageName = @"blackimg-Default-568h@2x.png";
+            imageName = @"Default-568h";
             break;
         case 667:
-            imageName = @"blackimg-Default-667h@2x.png";
+            imageName = @"Default-667h";
             break;
         case 736:
-            imageName = @"blackimg-Default-736h@3x.png";
+            imageName = @"Default-736h";
+            break;
+        case 768:
+            imageName = @"Default-Landscape";
+            break;
+        case 1024:
+            imageName = @"Default-Portrait";
             break;
         default:
-            imageName = @"blackimg-Default-736h@3x.png";
+            imageName = @"Default-736h";
             
             break;
     }
     bgImageView.image = [UIImage imageNamed:imageName];
-//    UIImageView *bg = [[UIImageView alloc] initWithFrame:bgImageView.bounds];
-//    [bgImageView addSubview:bg];
-//    bg.backgroundColor = [UIColor colorWithRed:80.0/255.0 green:90.0/255.0 blue:97.0/255.0 alpha:.6];
-//    
-//    [bgImageView setImageToBlur:[UIImage imageNamed:imageName]
-//                                                blurRadius:30
-//                                           completionBlock:^(){
-//     
-//                                           }];
-    
-  
 }
 
 -(void)displaySMSComposerSheet:(NSString*)roomID
@@ -356,10 +427,8 @@ static NSString *kRoomCellID = @"RoomCell";
     });
 }
 // 添加
-- (void)addRoomWithRoomName:(NSString*)roomName
+- (void)addRoomWithRoomName:(NSString*)roomName withPrivate:(BOOL)isPrivate
 {
-    UISwitch *privateRoomEnable = (UISwitch *)[self.barView viewWithTag:500];
-    
     RoomItem *roomItem = [dataArray objectAtIndex:0];
     roomItem.roomName = roomName;
     
@@ -374,13 +443,13 @@ static NSString *kRoomCellID = @"RoomCell";
     
     NtreatedData *data = [[NtreatedData alloc] init];
     data.actionType = CreateRoom;
-    data.isPrivate = privateRoomEnable.on;
+    data.isPrivate = isPrivate;
     data.item = roomItem;
     [[NtreatedDataManage sharedManager] addData:data];
     
     __weak MainViewController *weakSelf = self;
     // 上传信息
-    [ServerVisit applyRoomWithSign:[ServerVisit shead].authorization mettingId:roomItem.roomID mettingname:roomItem.roomName mettingCanPush:roomItem.canNotification  mettingtype:@"0" meetenable:privateRoomEnable.on == YES ? @"private" : @"yes" mettingdesc:@""  completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
+    [ServerVisit applyRoomWithSign:[ServerVisit shead].authorization mettingId:roomItem.roomID mettingname:roomItem.roomName mettingCanPush:roomItem.canNotification  mettingtype:@"0" meetenable:isPrivate == YES ? @"2" : @"1" mettingdesc:@""  completion:^(AFHTTPRequestOperation *operation, id responseData, NSError *error) {
         NSLog(@"create room");
         NSDictionary *dict = (NSDictionary*)responseData;
         if (!error) {
@@ -396,6 +465,9 @@ static NSString *kRoomCellID = @"RoomCell";
 // 更新名字
 - (void)addTempDeleteData:(NSString*)roomName
 {
+    if (dataArray.count==0) {
+        return;
+    }
     // 更改一下对象
     RoomItem *roomItem = [dataArray objectAtIndex:0];
     roomItem.roomName = roomName;
@@ -514,6 +586,12 @@ static NSString *kRoomCellID = @"RoomCell";
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     dispatch_async(dispatch_get_main_queue(), ^{
+        RoomItem *item = [dataArray objectAtIndex:indexPath.row];
+        if (item.mettingState == 0) {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"该会议暂不可用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alertView show];
+            return;
+        }
         VideoCallViewController *video = [[VideoCallViewController alloc] init];
         video.roomItem = [dataArray objectAtIndex:indexPath.row];
         UINavigationController *nai = [[UINavigationController alloc] initWithRootViewController:video];
@@ -563,9 +641,9 @@ static NSString *kRoomCellID = @"RoomCell";
    self.cancleButton.hidden = NO;
 }
 
-- (void)getRoomWithRoomName:(NSString*)roomName
+- (void)getRoomWithRoomName:(NSString*)roomName withPrivateMetting:(BOOL)isPrivate
 {
-    [self addRoomWithRoomName:roomName];
+    [self addRoomWithRoomName:roomName withPrivate:isPrivate];
     
 }
 - (void)cancleGetRoom
@@ -716,7 +794,8 @@ static NSString *kRoomCellID = @"RoomCell";
                 if ([[ServerVisit shead].authorization isEqualToString:@""]) {
                     [self deviceInit];
                 }else{
-                     UIView *initView = [[UIApplication sharedApplication].keyWindow.rootViewController.view viewWithTag:400];
+                    AppDelegate *apple = [RoomApp shead].appDelgate;
+                    UIView *initView = [apple.window.rootViewController.view viewWithTag:400];
                     if (initView) {
                         [self getData];
                     }else{
@@ -761,7 +840,7 @@ static NSString *kRoomCellID = @"RoomCell";
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
     if (ISIPAD) {
-        return UIInterfaceOrientationMaskAll;
+        return  (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight);
     }else{
         return UIInterfaceOrientationMaskPortrait;
     }

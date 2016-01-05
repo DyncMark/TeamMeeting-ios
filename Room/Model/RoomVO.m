@@ -16,6 +16,7 @@
     if (self) {
         self.roomID = @"";
         self.roomName = @"";
+        self.mettingNum = @"0";
         self.canNotification = [self canPush];
         self.mettingState = 0;
         self.jointime = [[TimeManager shead] timeTransformationTimestamp];

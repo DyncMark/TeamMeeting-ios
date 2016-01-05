@@ -21,7 +21,7 @@
 
 
 - (NSUInteger)supportedInterfaceOrientations {
-
+    
     return [self.topViewController supportedInterfaceOrientations];
 }
 
@@ -37,7 +37,7 @@ typedef enum ViewState {
     UNKNOWN,
     CHATSTATE,
     VIDEOSTATE
-
+    
 } ViewState;
 
 @interface VideoCallViewController ()<UINavigationControllerDelegate,LockerDelegate,MFMessageComposeViewControllerDelegate,UIGestureRecognizerDelegate>
@@ -72,7 +72,6 @@ typedef enum ViewState {
     if (self.isViewLoad)
         return;
     self.isViewLoad = YES;
-    
     [self.navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:[UIImage new]];
     self.view.backgroundColor = [UIColor whiteColor];
@@ -170,7 +169,7 @@ typedef enum ViewState {
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:nil];
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-   
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -203,7 +202,7 @@ typedef enum ViewState {
             
             
         }];
-
+        
     } else {
         
         [UIView animateWithDuration:0.1 animations:^{
@@ -257,7 +256,7 @@ typedef enum ViewState {
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
         startPoint = [gesture translationInView:self.view];
-    
+        
         
     } else if (gesture.state == UIGestureRecognizerStateChanged) {
         
@@ -271,7 +270,7 @@ typedef enum ViewState {
         
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
         
-       CGFloat rootViewWidth = isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100);
+        CGFloat rootViewWidth = isVertical == YES ? (self.view.bounds.size.width/2 - 50) : (self.view.bounds.size.width/2 - 100);
         if (fabsf(self.rootView.view.frame.origin.x) <= rootViewWidth/2 || self.rootView.view.frame.origin.x > 0) {
             
             [UIView animateWithDuration:0.2 animations:^{
@@ -307,7 +306,7 @@ typedef enum ViewState {
     }
     
     if (self.state == VIDEOSTATE)
-
+        
         [self.menuView showEnable:YES];
     
     if (self.state == UNKNOWN || self.state == CHATSTATE)
@@ -350,7 +349,7 @@ typedef enum ViewState {
 }
 
 - (void)hidenBarView {
-
+    
     [UIView animateWithDuration:0.3 animations:^{
         
         self.barView.frame = CGRectMake(self.barView.frame.origin.x, 0 - self.barView.bounds.size.height, self.barView.bounds.size.width, self.barView.bounds.size.height);
@@ -665,7 +664,7 @@ typedef enum ViewState {
     _shareViewGround.backgroundColor = [UIColor clearColor];
     [self.view addSubview:_shareViewGround];
     if (!isVertical) {
-    
+        
         [self.popver showAtPoint:CGPointMake(self.view.bounds.size.width - 25, 32) popoverPostion:DXPopoverPositionDown withContentView:shareView inView:_shareViewGround];
         
     } else {
@@ -702,7 +701,7 @@ typedef enum ViewState {
             
             self.videoGroudImage.hidden = YES;
             [self.rootView.view removeFromSuperview];
-        
+            
         }];
         [UIView animateWithDuration:0.3 animations:^{
             
@@ -760,7 +759,7 @@ typedef enum ViewState {
         
         button.selected = !button.selected;
         if (!button.selected) {
-        
+            
             [self closeChatView];
             return;
         }
@@ -826,13 +825,13 @@ typedef enum ViewState {
         [self dismissViewControllerAnimated:YES completion:nil];
         
     } else if (item.tag == 20) {
-       
+        
         item.isSelect = !item.isSelect;
         if (self.callViewCon) {
             [self.callViewCon audioEnable:!item.isSelect];
         }
         if (!item.isSelect) {
-    
+            
             [self.micStateImage setHidden:YES];
             [item setBackgroundImage:[UIImage imageNamed:@"mic"] forState:UIControlStateNormal];
             [item setBackgroundImage:[UIImage imageNamed:@"micselect"] forState:UIControlStateHighlighted];
@@ -883,7 +882,7 @@ typedef enum ViewState {
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-
+    
     if (self.popver) {
         
         [self.popver dismiss];
@@ -914,7 +913,7 @@ typedef enum ViewState {
     }
     if (self.popver) {
         
-       [self performSelector:@selector(shareView) withObject:nil afterDelay:0.3];
+        [self performSelector:@selector(shareView) withObject:nil afterDelay:0.3];
     }
     [self adjustUI];
 }
@@ -959,13 +958,13 @@ typedef enum ViewState {
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

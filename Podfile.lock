@@ -20,10 +20,10 @@ PODS:
   - AFNetworking/UIKit (2.5.4):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - DXPopover (0.1.1)
+  - DXPopover (0.1.0)
   - LBBlurredImage (0.2.2)
   - MBProgressHUD (0.9.1)
-  - MJRefresh (2.4.12)
+  - MJRefresh (2.4.3)
   - mp3lame-for-ios (0.1.1)
   - TTTAttributedLabel (1.13.4)
 
@@ -38,10 +38,10 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
-  DXPopover: 13e6bbd1a0da4e62b2190de51f43a94850769e0f
+  DXPopover: af3ca65ce38611b1c72c92863017760eb1479dc0
   LBBlurredImage: 700634c17922bc2d22343118e7deb6a3ca12db43
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
-  MJRefresh: ca8e9589895977df32d379d46e6b8a5450b3ff44
+  MJRefresh: d652e909f7182e306d445ec39868ff03a1ae36ce
   mp3lame-for-ios: 4daeb5686885be66438154050e3fe975d4ee1f07
   TTTAttributedLabel: 0a2ac7b2dd726d32a070dafb01446026b11e624f
 

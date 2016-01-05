@@ -96,7 +96,7 @@
     if (_showTime){
         CGFloat timeY = ChatMargin;
         CGSize timeSize = [_message.strTime sizeWithFont:ChatTimeFont constrainedToSize:CGSizeMake(300, 100) lineBreakMode:NSLineBreakByWordWrapping];
-
+        
         CGFloat timeX = (screenW - timeSize.width) / 2;
         _timeF = CGRectMake(timeX, timeY, timeSize.width + ChatTimeMarginW, timeSize.height + ChatTimeMarginH);
     }
@@ -117,7 +117,7 @@
     //CGFloat contentX = CGRectGetMaxX(_iconF)+ChatMargin;
     CGFloat contentX = ChatMargin;
     CGFloat contentY = iconY;
-   
+    
     //根据种类分
     CGSize contentSize;
     switch (_message.type) {

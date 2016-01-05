@@ -13,6 +13,8 @@
 #import "NtreatedDataManage.h"
 #import "WXApi.h"
 #import "WXApiManager.h"
+#import "RoomApp.h"
+
 @interface AppDelegate () <UISplitViewControllerDelegate>
 
 @end
@@ -28,7 +30,7 @@
     [[UINavigationBar appearance] setBarTintColor: [UIColor blackColor]];
     
     [ASNetwork sharedNetwork];
-    
+    [RoomApp shead].appDelgate = self;
     // Override point for customization after application launch.
     if (launchOptions) {
         NSString *string =  [NSString stringWithFormat:@"%@",launchOptions[UIApplicationLaunchOptionsURLKey]];
@@ -59,6 +61,7 @@
     [WXApi registerApp:@"wx4d9fbaec0a4c368f" withDescription:@"demo 2.0"];
     UINavigationController *nai = [[UINavigationController alloc] initWithRootViewController:[MainViewController new]];
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    nai.navigationBarHidden = YES;
     [self.window setRootViewController:nai];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];

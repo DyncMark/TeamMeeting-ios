@@ -270,7 +270,7 @@
 {
     [self.chatModel addSpecifiedItem:dic];
     [self.chatTableView reloadData];
-    [self performSelector:@selector(tableViewScrollToBottom) withObject:nil afterDelay:3];
+    [self performSelector:@selector(tableViewScrollToBottom) withObject:nil afterDelay:0.1];
 }
 
 #pragma mark - tableView delegate & datasource

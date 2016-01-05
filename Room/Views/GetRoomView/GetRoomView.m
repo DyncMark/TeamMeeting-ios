@@ -7,24 +7,28 @@
 //
 
 #import "GetRoomView.h"
+#import "CustomInputAccessoryView.h"
 
 #define GetRoomViewHeight 60
 #define TextViewHeight 24
-@interface GetRoomView()<UITextFieldDelegate>
+@interface GetRoomView()<UITextFieldDelegate,CustomInputAccessoryViewDelegate>
 {
     UIView *textInputView;  // 输入栏view
     
     UITextField *textInputTextView; // 输入框
     
-    UIButton *dismissButton;  // 隐藏view;
+    UIImageView *dismissButton;  // 隐藏view;
     
     UIView *parentsView;
     
     BOOL isChangeName;
     
     NSString *roomName;
+    
+    UITapGestureRecognizer *tapGesture;
 }
 @property (nonatomic, assign) BOOL isShow;
+@property (nonatomic, assign) BOOL isPrivateMetting;
 @end
 
 @implementation GetRoomView
@@ -39,13 +43,19 @@
         
         self.backgroundColor = [UIColor clearColor];
         
-        dismissButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        dismissButton.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - GetRoomViewHeight);
-        [dismissButton addTarget:self action:@selector(dismissGetRoomView) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:dismissButton];
-        dismissButton.hidden = YES;
+//        dismissButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        dismissButton= [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+//        dismissButton.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
+//        [dismissButton addTarget:self action:@selector(dismissGetRoomView) forControlEvents:UIControlEventTouchUpInside];
+        [parview addSubview:dismissButton];
+        [parview sendSubviewToBack:dismissButton];
         
-        textInputView = [[UIView alloc] initWithFrame:CGRectMake(0, -GetRoomViewHeight, frame.size.width, GetRoomViewHeight)];
+        dismissButton.hidden = YES;
+        if (ISIPAD) {
+             textInputView = [[UIView alloc] initWithFrame:CGRectMake(0, -GetRoomViewHeight, ISIPADMainList, GetRoomViewHeight)];
+        }else{
+             textInputView = [[UIView alloc] initWithFrame:CGRectMake(0, -GetRoomViewHeight, frame.size.width, GetRoomViewHeight)];
+        }
         
         textInputView.backgroundColor = [UIColor clearColor];// [UIColor colorWithRed:36.0/255.0 green:65.0/255.0 blue:89.0/255.0 alpha:1.0];
         [self addSubview:textInputView];
@@ -54,9 +64,11 @@
         lineDown.backgroundColor = [UIColor colorWithRed:133.0/255.0 green:138.0/255.0 blue:141.0/255.0 alpha:1];
         [textInputView addSubview:lineDown];
         
-        textInputTextView = [[UITextField alloc] initWithFrame:CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, frame.size.width - 30, TextViewHeight)];
+        textInputTextView = [[UITextField alloc] initWithFrame:CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, CGRectGetWidth(textInputView.frame) - 30, TextViewHeight)];
    
         [self addSubview:textInputTextView];
+        CustomInputAccessoryView *customInputView = [[CustomInputAccessoryView alloc] initWithTextField:textInputTextView];
+        customInputView.delegate = self;
         textInputTextView.placeholder = @"房间名字";
         [textInputTextView setValue:[UIColor colorWithRed:146.0/255.0 green:160.0/255.0 blue:169.0/255.0 alpha:1.0] forKeyPath:@"_placeholderLabel.textColor"];
          [textInputTextView setValue:[UIFont boldSystemFontOfSize:16] forKeyPath:@"_placeholderLabel.font"];
@@ -72,6 +84,9 @@
         [parview addSubview:self];
         [parview sendSubviewToBack:self];
         
+        tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissGetRoomView)];
+        [parview addGestureRecognizer:tapGesture];
+        tapGesture.enabled = NO;
         
     }
     return self;
@@ -80,6 +95,7 @@
 
 - (void)showGetRoomView
 {
+    tapGesture.enabled = YES;
     self.isShow = YES;
     
     isChangeName = NO;
@@ -87,8 +103,7 @@
     
     [parentsView bringSubviewToFront:self];
     dismissButton.hidden = NO;
-    dismissButton.enabled = NO;
-    [UIView animateWithDuration:.2 animations:^{
+    [UIView animateWithDuration:.3 animations:^{
         CGRect rect = textInputView.bounds;
         rect.origin.y = 0;
         textInputView.frame = rect;
@@ -99,7 +114,6 @@
         textInputTextView.frame = rectTextView;
         dismissButton.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
     }completion:^(BOOL finished) {
-        dismissButton.enabled = YES;
         [textInputTextView becomeFirstResponder];
         [UIView animateWithDuration:0.3 animations:^{
             textInputView.backgroundColor = [UIColor colorWithRed:36.0/255.0 green:65.0/255.0 blue:89.0/255.0 alpha:1.0];
@@ -113,6 +127,7 @@
 - (void)showWithRenameRoom:(NSString*)room
 {
     self.isShow = YES;
+    tapGesture.enabled = YES;
     
     isChangeName = YES;
     roomName = room;
@@ -122,7 +137,7 @@
     
     textInputTextView.text = roomName;
     [textInputTextView becomeFirstResponder];
-    [UIView animateWithDuration:.2 animations:^{
+    [UIView animateWithDuration:.3 animations:^{
         CGRect rect = textInputView.bounds;
         rect.origin.y = 0;
         textInputView.frame = rect;
@@ -145,7 +160,7 @@
 - (void)dismissView
 {
     self.isShow = NO;
-    
+    tapGesture.enabled = NO;
     dismissButton.hidden = YES;
     [textInputTextView resignFirstResponder];
     dismissButton.backgroundColor = [UIColor clearColor];
@@ -155,7 +170,7 @@
         }
          textInputTextView.text = @"";
         [UIView animateWithDuration:0.2 animations:^{
-            textInputView.frame = CGRectMake(0, -GetRoomViewHeight, self.frame.size.width, textInputView.bounds.size.height);
+            textInputView.frame = CGRectMake(0, -GetRoomViewHeight, textInputView.frame.size.width, textInputView.bounds.size.height);
             textInputTextView.frame = CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, textInputTextView.frame.size.width, textInputTextView.frame.size.height);
             textInputView.alpha = 0;
         
@@ -185,7 +200,7 @@
             textInputTextView.frame = rect2;
             
         }completion:^(BOOL finished) {
-            textInputView.frame = CGRectMake(0, -GetRoomViewHeight, self.frame.size.width, textInputView.bounds.size.height);
+            textInputView.frame = CGRectMake(0, -GetRoomViewHeight, textInputView.frame.size.width, textInputView.bounds.size.height);
             textInputView.alpha = 1;
             
             textInputTextView.frame = CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, textInputTextView.bounds.size.width, textInputTextView.bounds.size.height);
@@ -218,7 +233,7 @@
             
         }else{
             self.isShow = NO;
-            
+            tapGesture.enabled = NO;
             dismissButton.hidden = YES;
             [textInputTextView resignFirstResponder];
             dismissButton.backgroundColor = [UIColor clearColor];
@@ -228,7 +243,7 @@
             }
             
             [UIView animateWithDuration:0.2 animations:^{
-                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, self.frame.size.width, textInputView.bounds.size.height);
+                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, CGRectGetWidth(textInputView.frame), textInputView.bounds.size.height);
                 textInputTextView.frame = CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, textInputTextView.frame.size.width, textInputTextView.frame.size.height);
                 textInputView.alpha = 0;
                  textInputTextView.alpha = 0;
@@ -248,6 +263,7 @@
         }
     }else{
         self.isShow = NO;
+        tapGesture.enabled = NO;
         dismissButton.hidden = YES;
         [textInputTextView resignFirstResponder];
         dismissButton.backgroundColor = [UIColor clearColor];
@@ -257,7 +273,7 @@
                 textInputView.alpha = 0;
                 textInputTextView.frame = CGRectMake(textInputTextView.frame.origin.x, textInputTextView.frame.origin.y - 8, textInputTextView.frame.size.width, textInputTextView.frame.size.height);
             }completion:^(BOOL finished) {
-                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, self.frame.size.width, textInputView.bounds.size.height);
+                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, CGRectGetWidth(textInputView.frame), textInputView.bounds.size.height);
                 textInputView.alpha = 1;
                 
                 textInputTextView.frame = CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, textInputTextView.frame.size.width, textInputTextView.frame.size.height);
@@ -269,8 +285,8 @@
                 
                 [parentsView sendSubviewToBack:self];
             }];
-            if (delegate && [delegate respondsToSelector:@selector(getRoomWithRoomName:)]) {
-                [delegate getRoomWithRoomName:textInputTextView.text];
+            if (delegate && [delegate respondsToSelector:@selector(getRoomWithRoomName:withPrivateMetting:)]) {
+                [delegate getRoomWithRoomName:textInputTextView.text withPrivateMetting:self.isPrivateMetting];
             }
             
         }else{
@@ -291,7 +307,7 @@
                 textInputTextView.frame = rect2;
                 
             }completion:^(BOOL finished) {
-                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, self.frame.size.width, textInputView.bounds.size.height);
+                textInputView.frame = CGRectMake(0, -GetRoomViewHeight, CGRectGetWidth(textInputView.frame), textInputView.bounds.size.height);
                 textInputView.alpha = 1;
                 
                 textInputTextView.frame = CGRectMake(15, -(GetRoomViewHeight-TextViewHeight)/2, textInputTextView.bounds.size.width, textInputTextView.bounds.size.height);
@@ -315,6 +331,16 @@
     return YES;
 }
 
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+    [self dismissGetRoomView];
+    return YES;
+}
+#pragma mark - CustomInputAccessoryViewDelegate
+- (void) customInputAccessoryViewDelegateOpenPrivate:(BOOL)isOpen
+{
+    self.isPrivateMetting = isOpen;
+}
 /*
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
